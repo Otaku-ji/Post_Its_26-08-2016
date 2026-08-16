@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Enter PIN</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <main class="pin-page">
+
+        <div class="pin-box">
+
+            <h1>Enter PIN</h1>
+
+            <p>
+                Enter your 5-digit PIN to continue.
+            </p>
+
+
+            <form id="pinForm">
+
+                <input
+                    id="pinInput"
+                    type="password"
+                    inputmode="numeric"
+                    pattern="[0-9]{5}"
+                    maxlength="5"
+                    autocomplete="off"
+                    placeholder="•••••"
+                    required
+                >
+
+
+                <button
+                    id="pinButton"
+                    type="submit"
+                >
+                    Continue
+                </button>
+
+            </form>
+
+
+            <p
+                id="pinStatus"
+                class="pin-status"
+            ></p>
+
+        </div>
+
+    </main>
+
+
+    <script>
+
+        const pinInput =
+            document.getElementById(
+                "pinInput"
+            );
+
+
+        pinInput.addEventListener(
+            "input",
+            () => {
+
+                pinInput.value =
+                    pinInput.value.replace(
+                        /\D/g,
+                        ""
+                    );
+
+            }
+        );
+
+    </script>
+
+</body>
+
+</html>
