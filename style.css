@@ -1805,3 +1805,29 @@ h1 {
 
     font-weight: bold;
 }
+
+/* =========================
+   PIN DOTS
+========================= */
+
+.pin-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin: 25px 0 15px;
+}
+
+.pin-dots span {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #222;
+    border-radius: 50%;
+    background: transparent;
+    display: block;
+    transition: background-color 0.15s ease;
+}
+
+.pin-dots span.filled {
+    background: #222;
+}
