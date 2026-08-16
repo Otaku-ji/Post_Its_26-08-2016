@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Set Up PIN</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+
+<body>
+
+    <main class="pin-page">
+
+        <div class="pin-box">
+
+            <h1>Set Up PIN</h1>
+
+            <p>
+                Create a 5-digit PIN to protect your game.
+            </p>
+
+
+            <form id="setupPinForm">
+
+                <input
+                    id="pinInput"
+                    type="password"
+                    inputmode="numeric"
+                    pattern="[0-9]{5}"
+                    maxlength="5"
+                    autocomplete="new-password"
+                    placeholder="•••••"
+                    required
+                >
+
+
+                <input
+                    id="confirmPinInput"
+                    type="password"
+                    inputmode="numeric"
+                    pattern="[0-9]{5}"
+                    maxlength="5"
+                    autocomplete="new-password"
+                    placeholder="Confirm PIN"
+                    required
+                >
+
+
+                <button
+                    id="setupPinButton"
+                    type="submit"
+                >
+                    Create PIN
+                </button>
+
+            </form>
+
+
+            <p
+                id="setupPinStatus"
+                class="pin-status"
+            ></p>
+
+        </div>
+
+    </main>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script src="setup-pin.js"></script>
+
+</body>
+
+</html>
