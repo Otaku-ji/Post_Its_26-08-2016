@@ -764,9 +764,7 @@ function showNote(
 ) {
 
     noteCategory.textContent =
-        formatCategory(
-            note.category
-        );
+        note.category;
 
 
     noteText.textContent =
