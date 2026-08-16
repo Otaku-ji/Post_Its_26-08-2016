@@ -1,4 +1,4 @@
-const CACHE_NAME = "postit-game-v1";
+const CACHE_NAME = "postit-game-v2";
 
 
 const APP_FILES = [
@@ -97,6 +97,10 @@ self.addEventListener(
    FETCH
 ========================= */
 
+/* =========================
+   FETCH
+========================= */
+
 self.addEventListener(
     "fetch",
     event => {
@@ -117,10 +121,6 @@ self.addEventListener(
 
         /*
            Do not cache Supabase/API requests.
-
-           app.js and collection.js
-           communicate directly with
-           Supabase.
         */
 
         const url =
@@ -141,13 +141,82 @@ self.addEventListener(
 
 
         /*
-           Cache-first strategy.
+           HTML pages:
+           NETWORK FIRST.
 
-           If the file is already cached,
-           use the cached version.
+           This means the browser checks
+           GitHub Pages for the newest HTML
+           whenever internet is available.
 
-           Otherwise fetch it from the
-           internet and add it to the cache.
+           If offline, it uses the cached
+           version instead.
+        */
+
+        if (
+            event.request.destination ===
+                "document"
+        ) {
+
+            event.respondWith(
+
+                fetch(
+                    event.request
+                )
+                    .then(
+                        response => {
+
+                            if (
+                                response &&
+                                response.status ===
+                                    200
+                            ) {
+
+                                const responseClone =
+                                    response.clone();
+
+
+                                caches
+                                    .open(
+                                        CACHE_NAME
+                                    )
+                                    .then(
+                                        cache => {
+
+                                            cache.put(
+                                                event.request,
+                                                responseClone
+                                            );
+
+                                        }
+                                    );
+
+                            }
+
+
+                            return response;
+
+                        }
+                    )
+                    .catch(
+                        () =>
+                            caches.match(
+                                event.request
+                            )
+                    )
+
+            );
+
+            return;
+
+        }
+
+
+        /*
+           Other files:
+           CACHE FIRST.
+
+           CSS and JavaScript can still
+           work offline.
         */
 
         event.respondWith(
@@ -174,14 +243,10 @@ self.addEventListener(
                             .then(
                                 response => {
 
-                                    /*
-                                       Only cache successful
-                                       responses.
-                                    */
-
                                     if (
                                         response &&
-                                        response.status === 200 &&
+                                        response.status ===
+                                            200 &&
                                         response.type ===
                                             "basic"
                                     ) {
