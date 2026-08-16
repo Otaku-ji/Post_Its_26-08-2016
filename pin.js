@@ -1,6 +1,7 @@
 const SUPABASE_URL =
     "https://vaqmavrjvjktqijlpxst.supabase.co";
 
+
 const SUPABASE_KEY =
     "sb_publishable_1VBFWiNkHPz5XmLHP_v8KA_iJHKwrCg";
 
@@ -12,69 +13,73 @@ const db =
     );
 
 
-const pinForm =
-    document.getElementById(
-        "pinForm"
+let currentPin = "";
+
+
+const pinDots =
+    document.querySelectorAll(
+        "#pinDots span"
     );
 
-const pinInput =
+
+const pinMessage =
     document.getElementById(
-        "pinInput"
+        "pinMessage"
     );
 
-const pinButton =
+
+const deleteButton =
     document.getElementById(
-        "pinButton"
+        "deleteButton"
     );
 
-const pinStatus =
-    document.getElementById(
-        "pinStatus"
+
+const digitButtons =
+    document.querySelectorAll(
+        "[data-digit]"
     );
 
 
 /* =========================
-   CHECK LOGIN
+   MESSAGE
 ========================= */
 
-async function checkLogin() {
+function showMessage(
+    message
+) {
 
-    const {
-        data,
-        error
-    } = await db.auth.getSession();
-
-
-    if (error) {
-
-        console.error(
-            "SESSION ERROR:",
-            error
-        );
-
-    }
-
-
-    if (
-        !data ||
-        !data.session
-    ) {
-
-        window.location.href =
-            "login.html";
-
-        return false;
-
-    }
-
-
-    return true;
+    pinMessage.textContent =
+        message;
 
 }
 
 
 /* =========================
-   PIN HASH
+   UPDATE DOTS
+========================= */
+
+function updateDots() {
+
+    pinDots.forEach(
+        (
+            dot,
+            index
+        ) => {
+
+            dot.classList.toggle(
+                "filled",
+                index <
+                    currentPin.length
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================
+   HASH PIN
 ========================= */
 
 async function hashPin(
@@ -91,19 +96,22 @@ async function hashPin(
         );
 
 
-    const hash =
+    const hashBuffer =
         await crypto.subtle.digest(
             "SHA-256",
             data
         );
 
 
-    return Array
-        .from(
+    const hashArray =
+        Array.from(
             new Uint8Array(
-                hash
+                hashBuffer
             )
-        )
+        );
+
+
+    return hashArray
         .map(
             byte =>
                 byte
@@ -124,16 +132,24 @@ async function hashPin(
 
 async function checkPin() {
 
+    showMessage(
+        "Checking PIN..."
+    );
+
+
     const {
-        data,
-        error
-    } = await db.auth.getSession();
+        data:
+            sessionData,
+        error:
+            sessionError
+    } =
+        await db.auth.getSession();
 
 
     if (
-        error ||
-        !data ||
-        !data.session
+        sessionError ||
+        !sessionData ||
+        !sessionData.session
     ) {
 
         window.location.href =
@@ -145,43 +161,21 @@ async function checkPin() {
 
 
     const userId =
-        data.session.user.id;
+        sessionData.session.user.id;
 
 
-    const pin =
-        pinInput.value;
-
-
-    if (
-        !/^\d{5}$/.test(
-            pin
-        )
-    ) {
-
-        pinStatus.textContent =
-            "Please enter a 5-digit PIN.";
-
-        return;
-
-    }
-
-
-    pinButton.disabled =
-        true;
-
-    pinStatus.textContent =
-        "Checking PIN...";
+    const pinHash =
+        await hashPin(
+            currentPin
+        );
 
 
     try {
 
-        const pinHash =
-            await hashPin(
-                pin
-            );
-
-
-        const response =
+        const {
+            data,
+            error
+        } =
             await db.functions.invoke(
                 "pin",
                 {
@@ -199,15 +193,31 @@ async function checkPin() {
             );
 
 
-        if (response.error) {
+        if (error) {
 
-            throw response.error;
+            console.error(
+                "PIN CHECK ERROR:",
+                error
+            );
+
+
+            showMessage(
+                "Could not check PIN."
+            );
+
+            currentPin = "";
+
+            updateDots();
+
+            return;
 
         }
 
 
-        const result =
-            response.data;
+        console.log(
+            "PIN CHECK RESULT:",
+            data
+        );
 
 
         /* =========================
@@ -215,17 +225,17 @@ async function checkPin() {
         ========================= */
 
         if (
-            result.success
+            data &&
+            data.success === true
         ) {
 
             /*
-               Remember that the PIN
-               has been successfully
-               entered on this device.
+               PIN is correct.
+               Allow access to the game.
             */
 
             sessionStorage.setItem(
-                "postit_pin_unlocked",
+                "pin_verified",
                 "true"
             );
 
@@ -243,16 +253,16 @@ async function checkPin() {
         ========================= */
 
         if (
-            result.permanently_locked
+            data &&
+            data.permanently_locked
         ) {
 
-            pinStatus.textContent =
-                "This PIN is permanently locked. An administrator must reset it.";
+            showMessage(
+                "This account is permanently locked."
+            );
 
-            pinInput.value = "";
 
-            pinButton.disabled =
-                true;
+            disableKeypad();
 
             return;
 
@@ -260,36 +270,36 @@ async function checkPin() {
 
 
         /* =========================
-           15 MINUTE LOCK
+           TEMPORARY LOCK
         ========================= */
 
         if (
-            result.locked_until
+            data &&
+            data.locked_until
         ) {
 
             const lockedUntil =
                 new Date(
-                    result.locked_until
+                    data.locked_until
                 );
 
 
             const minutes =
                 Math.ceil(
                     (
-                        lockedUntil.getTime() -
-                        Date.now()
+                        lockedUntil -
+                        new Date()
                     ) /
                     60000
                 );
 
 
-            pinStatus.textContent =
-                `Too many incorrect attempts. Try again in ${minutes} minute(s).`;
+            showMessage(
+                `Too many attempts. Try again in ${minutes} minute(s).`
+            );
 
-            pinInput.value = "";
 
-            pinButton.disabled =
-                true;
+            disableKeypad();
 
             return;
 
@@ -301,46 +311,35 @@ async function checkPin() {
         ========================= */
 
         const attempts =
-            result.failed_attempts ||
+            data?.failed_attempts ??
             0;
 
 
-        const remaining =
-            5 -
-            attempts;
+        showMessage(
+            `Incorrect PIN. Attempt ${attempts} of 8.`
+        );
 
 
-        if (
-            attempts < 5
-        ) {
+        currentPin = "";
 
-            pinStatus.textContent =
-                `Incorrect PIN. ${remaining} attempt(s) remaining before the 15-minute lock.`;
-
-        }
-
-
-        pinInput.value = "";
-
-        pinInput.focus();
-
-        pinButton.disabled =
-            false;
-
+        updateDots();
 
     } catch (error) {
 
         console.error(
-            "PIN ERROR:",
+            "PIN CHECK ERROR:",
             error
         );
 
 
-        pinStatus.textContent =
-            "Could not check PIN. Please try again.";
+        showMessage(
+            "Could not check PIN."
+        );
 
-        pinButton.disabled =
-            false;
+
+        currentPin = "";
+
+        updateDots();
 
     }
 
@@ -348,18 +347,116 @@ async function checkPin() {
 
 
 /* =========================
-   FORM
+   ADD DIGIT
 ========================= */
 
-pinForm.addEventListener(
-    "submit",
-    event => {
+function addDigit(
+    digit
+) {
 
-        event.preventDefault();
+    if (
+        currentPin.length >= 5
+    ) {
+
+        return;
+
+    }
+
+
+    currentPin +=
+        digit;
+
+
+    updateDots();
+
+
+    if (
+        currentPin.length === 5
+    ) {
 
         checkPin();
 
     }
+
+}
+
+
+/* =========================
+   DELETE DIGIT
+========================= */
+
+function deleteDigit() {
+
+    if (
+        currentPin.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    currentPin =
+        currentPin.slice(
+            0,
+            -1
+        );
+
+
+    updateDots();
+
+    showMessage("");
+
+}
+
+
+/* =========================
+   DISABLE KEYPAD
+========================= */
+
+function disableKeypad() {
+
+    digitButtons.forEach(
+        button => {
+
+            button.disabled =
+                true;
+
+        }
+    );
+
+
+    deleteButton.disabled =
+        true;
+
+}
+
+
+/* =========================
+   BUTTON EVENTS
+========================= */
+
+digitButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                addDigit(
+                    button.dataset.digit
+                );
+
+            }
+        );
+
+    }
+);
+
+
+deleteButton.addEventListener(
+    "click",
+    deleteDigit
 );
 
 
@@ -367,4 +464,157 @@ pinForm.addEventListener(
    START
 ========================= */
 
-checkLogin();
+async function startPinPage() {
+
+    const {
+        data,
+        error
+    } =
+        await db.auth.getSession();
+
+
+    if (
+        error ||
+        !data ||
+        !data.session
+    ) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    /*
+       Check whether a PIN exists.
+    */
+
+    const userId =
+        data.session.user.id;
+
+
+    try {
+
+        const {
+            data:
+                pinStatus,
+            error:
+                pinError
+        } =
+            await db.functions.invoke(
+                "pin",
+                {
+                    body: {
+                        action:
+                            "status",
+
+                        user_id:
+                            userId
+                    }
+                }
+            );
+
+
+        if (pinError) {
+
+            console.error(
+                "PIN STATUS ERROR:",
+                pinError
+            );
+
+            showMessage(
+                "Could not load PIN status."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !pinStatus ||
+            !pinStatus.exists
+        ) {
+
+            window.location.href =
+                "setup-pin.html";
+
+            return;
+
+        }
+
+
+        if (
+            pinStatus.permanently_locked
+        ) {
+
+            showMessage(
+                "This account is permanently locked."
+            );
+
+
+            disableKeypad();
+
+            return;
+
+        }
+
+
+        if (
+            pinStatus.locked_until
+        ) {
+
+            const lockedUntil =
+                new Date(
+                    pinStatus.locked_until
+                );
+
+
+            if (
+                lockedUntil >
+                new Date()
+            ) {
+
+                const minutes =
+                    Math.ceil(
+                        (
+                            lockedUntil -
+                            new Date()
+                        ) /
+                        60000
+                    );
+
+
+                showMessage(
+                    `Too many attempts. Try again in ${minutes} minute(s).`
+                );
+
+
+                disableKeypad();
+
+                return;
+
+            }
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "PIN STATUS ERROR:",
+            error
+        );
+
+
+        showMessage(
+            "Could not load PIN status."
+        );
+
+    }
+
+}
+
+
+startPinPage();

@@ -14,7 +14,7 @@
 
     <link
         rel="stylesheet"
-        href="style.css"
+        href="pin.css"
     >
 
 </head>
@@ -22,54 +22,76 @@
 
 <body>
 
-    <main class="pin-page">
+    <main class="pin-container">
 
-        <div class="pin-box">
+        <div class="pin-card">
 
             <h1>Enter PIN</h1>
 
-            <p>
+            <p class="pin-subtitle">
                 Enter your 5-digit PIN to continue.
             </p>
 
 
-            <form id="pinForm">
+            <div
+                id="pinDots"
+                class="pin-dots"
+            >
 
-                <input
-                    id="pinInput"
-                    type="password"
-                    inputmode="numeric"
-                    pattern="[0-9]{5}"
-                    maxlength="5"
-                    autocomplete="off"
-                    placeholder="•••••"
-                    required
-                >
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
 
+            </div>
+
+
+            <div
+                id="pinMessage"
+                class="pin-message"
+            ></div>
+
+
+            <div class="pin-keypad">
+
+                <button type="button" data-digit="1">1</button>
+                <button type="button" data-digit="2">2</button>
+                <button type="button" data-digit="3">3</button>
+
+                <button type="button" data-digit="4">4</button>
+                <button type="button" data-digit="5">5</button>
+                <button type="button" data-digit="6">6</button>
+
+                <button type="button" data-digit="7">7</button>
+                <button type="button" data-digit="8">8</button>
+                <button type="button" data-digit="9">9</button>
 
                 <button
-                    id="pinButton"
-                    type="submit"
+                    type="button"
+                    class="empty-button"
+                    disabled
+                ></button>
+
+                <button type="button" data-digit="0">0</button>
+
+                <button
+                    type="button"
+                    id="deleteButton"
                 >
-                    Continue
+                    ←
                 </button>
 
-            </form>
-
-
-            <p
-                id="pinStatus"
-                class="pin-status"
-            ></p>
+            </div>
 
         </div>
 
     </main>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script src="pin.js"></script>
+    <script src="pin.js"></script>
 
 </body>
 
