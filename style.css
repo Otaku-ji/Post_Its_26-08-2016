@@ -1,0 +1,1688 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {
+    margin: 0;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    min-height: 100vh;
+
+    color: #29231c;
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            #fffdf7 0%,
+            #eee7da 70%
+        );
+}
+
+
+.app {
+    width:
+        min(
+            1000px,
+            100%
+        );
+
+    margin:
+        auto;
+
+    padding:
+        30px
+        20px
+        60px;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
+header {
+    text-align:
+        center;
+}
+
+
+h1 {
+    margin:
+        0
+        0
+        20px;
+
+    font-size:
+        clamp(
+            32px,
+            6vw,
+            48px
+        );
+
+    letter-spacing:
+        -1px;
+}
+
+
+.stats {
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        12px;
+
+    flex-wrap:
+        wrap;
+}
+
+
+.stats div {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    gap:
+        7px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .85
+        );
+
+    border:
+        1px solid
+        #ddd5c8;
+
+    border-radius:
+        999px;
+
+    padding:
+        8px
+        16px;
+
+    font-weight:
+        750;
+
+    box-shadow:
+        0
+        3px
+        10px
+        rgba(
+            0,
+            0,
+            0,
+            .06
+        );
+}
+
+
+/* =========================
+   STAT ICONS
+========================= */
+
+.stat-icon {
+    display:
+        inline-flex;
+
+    width:
+        17px;
+
+    height:
+        17px;
+
+    flex-shrink:
+        0;
+}
+
+
+.stat-icon svg {
+    width:
+        100%;
+
+    height:
+        100%;
+
+    fill:
+        none;
+
+    stroke:
+        #29231c;
+
+    stroke-width:
+        1.8;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+
+/* =========================
+   JAR AREA
+========================= */
+
+#jarSection {
+
+    min-height:
+        620px;
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+}
+
+
+/* =========================
+   JAR
+========================= */
+
+.jar {
+
+    width:
+        min(
+            380px,
+            82vw
+        );
+
+    height:
+        470px;
+
+    position:
+        relative;
+
+    cursor:
+        pointer;
+
+    user-select:
+        none;
+
+    -webkit-tap-highlight-color:
+        transparent;
+
+    transition:
+        transform
+        .2s
+        ease;
+
+    filter:
+        drop-shadow(
+            0
+            25px
+            25px
+            rgba(
+                30,
+                25,
+                15,
+                .18
+            )
+        );
+}
+
+
+.jar:hover {
+    transform:
+        translateY(-4px);
+}
+
+
+.jar:active {
+    transform:
+        scale(.98);
+}
+
+
+/* =========================
+   JAR GLASS
+========================= */
+
+.jar-glass {
+
+    position:
+        absolute;
+
+    left:
+        5%;
+
+    right:
+        5%;
+
+    top:
+        75px;
+
+    bottom:
+        10px;
+
+    border:
+        5px solid
+        rgba(
+            105,
+            125,
+            130,
+            .38
+        );
+
+    border-top:
+        0;
+
+    border-radius:
+        28px
+        28px
+        75px
+        75px;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(
+                255,
+                255,
+                255,
+                .42
+            ),
+            rgba(
+                180,
+                220,
+                230,
+                .10
+            ),
+            rgba(
+                255,
+                255,
+                255,
+                .35
+            )
+        );
+
+    box-shadow:
+
+        inset
+        20px
+        0
+        25px
+        rgba(
+            255,
+            255,
+            255,
+            .45
+        ),
+
+        inset
+        -18px
+        0
+        25px
+        rgba(
+            50,
+            70,
+            80,
+            .12
+        );
+
+    z-index:
+        5;
+
+    pointer-events:
+        none;
+}
+
+
+/* =========================
+   GLASS REFLECTION
+========================= */
+
+.glass-highlight {
+
+    position:
+        absolute;
+
+    left:
+        25px;
+
+    top:
+        25px;
+
+    bottom:
+        45px;
+
+    width:
+        20px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .35
+        );
+
+    filter:
+        blur(
+            5px
+        );
+}
+
+
+/* =========================
+   JAR NECK
+========================= */
+
+.jar-neck {
+
+    position:
+        absolute;
+
+    z-index:
+        4;
+
+    left:
+        10%;
+
+    right:
+        10%;
+
+    top:
+        58px;
+
+    height:
+        45px;
+
+    border:
+        5px solid
+        rgba(
+            100,
+            120,
+            125,
+            .4
+        );
+
+    border-radius:
+        12px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .25
+        );
+}
+
+
+/* =========================
+   METAL LID
+========================= */
+
+.jar-lid {
+
+    position:
+        absolute;
+
+    z-index:
+        10;
+
+    top:
+        15px;
+
+    left:
+        8%;
+
+    width:
+        84%;
+
+    height:
+        70px;
+
+    border:
+        4px solid
+        #555;
+
+    border-radius:
+        14px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            #c6c6c6,
+            #929292
+        );
+
+    box-shadow:
+
+        0
+        8px
+        10px
+        rgba(
+            0,
+            0,
+            0,
+            .28
+        ),
+
+        inset
+        0
+        5px
+        4px
+        rgba(
+            255,
+            255,
+            255,
+            .45
+        );
+
+    transition:
+        transform
+        .55s
+        cubic-bezier(
+            .2,
+            .8,
+            .3,
+            1
+        );
+}
+
+
+.lid-highlight {
+
+    position:
+        absolute;
+
+    left:
+        8%;
+
+    right:
+        8%;
+
+    top:
+        10px;
+
+    height:
+        7px;
+
+    border-radius:
+        10px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .5
+        );
+}
+
+
+/* =========================
+   NOTES
+========================= */
+
+.jar-notes {
+
+    position:
+        absolute;
+
+    z-index:
+        3;
+
+    left:
+        12%;
+
+    right:
+        12%;
+
+    top:
+        100px;
+
+    bottom:
+        35px;
+
+    overflow:
+        hidden;
+
+    border-radius:
+        20px
+        20px
+        55px
+        55px;
+}
+
+
+.mini-note {
+
+    position:
+        absolute;
+
+    width:
+        54px;
+
+    height:
+        48px;
+
+    box-shadow:
+        2px
+        4px
+        7px
+        rgba(
+            0,
+            0,
+            0,
+            .20
+        );
+
+    transform:
+        rotate(
+            var(--rotation)
+        );
+
+    transition:
+        transform
+        .3s;
+}
+
+
+/* folded corner */
+
+.mini-note::after {
+
+    content:
+        "";
+
+    position:
+        absolute;
+
+    right:
+        0;
+
+    top:
+        0;
+
+    width:
+        12px;
+
+    height:
+        12px;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .35
+        );
+
+    clip-path:
+        polygon(
+            100% 0,
+            100% 100%,
+            0 0
+        );
+}
+
+
+/* =========================
+   COLOURS
+========================= */
+
+.orange {
+    background:
+        #f6b26b;
+}
+
+
+.pink {
+    background:
+        #f5a6c8;
+}
+
+
+.white {
+    background:
+        #ffffff;
+}
+
+
+.beige {
+    background:
+        #f3e5c8;
+}
+
+
+.light-blue {
+    background:
+        #9dd9ee;
+}
+
+
+.green {
+    background:
+        #9bd18b;
+}
+
+
+.purple {
+    background:
+        #c5a3e6;
+}
+
+
+.red {
+    background:
+        #ef7777;
+}
+
+
+/* =========================
+   HEART STICKER
+========================= */
+
+.heart-sticker {
+
+    position:
+        absolute;
+
+    z-index:
+        8;
+
+    /*
+       Upper-right area
+       of the jar
+    */
+
+    right:
+        22%;
+
+    top:
+        155px;
+
+    width:
+        48px;
+
+    height:
+        48px;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    background:
+        #ef7777;
+
+    color:
+        white;
+
+    font-size:
+        27px;
+
+    line-height:
+        1;
+
+    border-radius:
+        50%;
+
+    border:
+        2px solid
+        rgba(
+            255,
+            255,
+            255,
+            .65
+        );
+
+    box-shadow:
+        2px
+        4px
+        7px
+        rgba(
+            0,
+            0,
+            0,
+            .20
+        );
+
+    transform:
+        rotate(
+            18deg
+        );
+
+    pointer-events:
+        none;
+}
+
+
+/* =========================
+   JAR BOTTOM
+========================= */
+
+.jar-bottom {
+
+    position:
+        absolute;
+
+    z-index:
+        6;
+
+    left:
+        12%;
+
+    right:
+        12%;
+
+    bottom:
+        0;
+
+    height:
+        30px;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(
+            110,
+            125,
+            130,
+            .20
+        );
+
+    pointer-events:
+        none;
+}
+
+
+/* =========================
+   SHAKE
+========================= */
+
+.jar.shaking {
+
+    animation:
+        jarShake
+        .7s
+        ease-in-out;
+}
+
+
+@keyframes jarShake {
+
+    0% {
+        transform:
+            rotate(0);
+    }
+
+    10% {
+        transform:
+            rotate(-3deg);
+    }
+
+    20% {
+        transform:
+            rotate(3deg);
+    }
+
+    30% {
+        transform:
+            rotate(-4deg);
+    }
+
+    40% {
+        transform:
+            rotate(4deg);
+    }
+
+    50% {
+        transform:
+            rotate(-3deg);
+    }
+
+    60% {
+        transform:
+            rotate(3deg);
+    }
+
+    70% {
+        transform:
+            rotate(-2deg);
+    }
+
+    80% {
+        transform:
+            rotate(2deg);
+    }
+
+    100% {
+        transform:
+            rotate(0);
+    }
+}
+
+
+/* =========================
+   LID OPEN
+========================= */
+
+.jar.lid-open .jar-lid {
+
+    transform:
+        translateY(
+            -65px
+        )
+        rotate(
+            -12deg
+        );
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+#status {
+
+    margin:
+        0
+        0
+        12px;
+
+    opacity:
+        .6;
+
+    text-align:
+        center;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================
+   JAR ACTION BUTTONS
+========================= */
+
+#collectionLinkSection {
+
+    display:
+        flex;
+
+    flex-direction:
+        column;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    margin-top:
+        20px;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+#collectionButton,
+#resetButton {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
+
+    margin:
+        0;
+
+    width:
+        max-content;
+
+    border:
+        0;
+
+    background:
+        #29231c;
+
+    color:
+        white;
+
+    font-size:
+        16px;
+
+    font-weight:
+        800;
+
+    padding:
+        12px
+        24px;
+
+    border-radius:
+        12px;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform
+        .15s
+        ease,
+        opacity
+        .15s
+        ease;
+}
+
+
+#collectionButton:hover,
+#resetButton:hover {
+
+    transform:
+        translateY(-2px);
+}
+
+
+#resetButton:disabled {
+
+    opacity:
+        .5;
+
+    cursor:
+        not-allowed;
+
+    transform:
+        none;
+}
+
+
+/* =========================
+   BUTTON ICONS
+========================= */
+
+.button-icon {
+
+    display:
+        inline-flex;
+
+    width:
+        19px;
+
+    height:
+        19px;
+
+    flex-shrink:
+        0;
+}
+
+
+.button-icon svg {
+
+    width:
+        100%;
+
+    height:
+        100%;
+
+    fill:
+        none;
+
+    stroke:
+        currentColor;
+
+    stroke-width:
+        1.8;
+
+    stroke-linecap:
+        round;
+
+    stroke-linejoin:
+        round;
+}
+
+
+/* =========================
+   COLLECTION CATEGORIES
+========================= */
+
+#categoryButtons {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    gap:
+        10px;
+
+    flex-wrap:
+        wrap;
+
+    margin-bottom:
+        30px;
+}
+
+
+.category-button {
+
+    border:
+        1px solid
+        #ddd5c8;
+
+    color:
+        #29231c;
+
+    padding:
+        9px
+        16px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        15px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+/* =========================
+   CATEGORY FILTER COLOURS
+========================= */
+
+.category-button.orange {
+    background:
+        #f6b26b;
+}
+
+
+.category-button.pink {
+    background:
+        #f5a6c8;
+}
+
+
+.category-button.green {
+    background:
+        #9bd18b;
+}
+
+
+.category-button.beige {
+    background:
+        #f3e5c8;
+}
+
+
+.category-button.light-blue {
+    background:
+        #9dd9ee;
+}
+
+
+.category-button.red {
+    background:
+        #ef7777;
+}
+
+
+.category-button.purple {
+    background:
+        #c5a3e6;
+}
+
+
+/* =========================
+   SELECTED CATEGORY
+========================= */
+
+.category-button.active {
+
+    background:
+        #29231c !important;
+
+    color:
+        white !important;
+}
+
+
+/* =========================
+   ALL BUTTON
+========================= */
+
+#categoryButtons .all-button {
+
+    background:
+        white;
+
+    color:
+        #000000;
+}
+
+
+#categoryButtons .all-button.active {
+
+    background:
+        #29231c !important;
+
+    color:
+        white !important;
+}
+
+
+/* =========================
+   COLLECTION GRID
+========================= */
+
+#collectionGrid {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(
+                180px,
+                1fr
+            )
+        );
+
+    gap:
+        20px;
+}
+
+
+.collection-note {
+
+    min-height:
+        150px;
+
+    padding:
+        20px;
+
+    box-shadow:
+        4px
+        7px
+        12px
+        rgba(
+            0,
+            0,
+            0,
+            .18
+        );
+
+    transform:
+        rotate(
+            var(--rotation)
+        );
+
+    cursor:
+        pointer;
+
+    transition:
+        .2s;
+}
+
+
+.collection-note:hover {
+
+    transform:
+        rotate(0)
+        translateY(-5px);
+}
+
+
+/* =========================
+   NOTE TEXT
+========================= */
+
+.note-category {
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+    text-decoration:
+        underline;
+
+    text-underline-offset:
+        4px;
+
+    color:
+        #000000;
+
+    opacity:
+        1;
+
+    margin-bottom:
+        30px;
+}
+
+
+.note-message {
+
+    font-weight:
+        400;
+
+    line-height:
+        1.4;
+}
+
+
+/* =========================
+   MODAL
+========================= */
+
+.modal {
+
+    position:
+        fixed;
+
+    inset:
+        0;
+
+    background:
+        rgba(
+            20,
+            17,
+            13,
+            .65
+        );
+
+    display:
+        none;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        20px;
+
+    z-index:
+        20;
+}
+
+
+.modal.visible {
+
+    display:
+        flex;
+}
+
+
+.big-note {
+
+    width:
+        min(
+            430px,
+            90vw
+        );
+
+    min-height:
+        320px;
+
+    padding:
+        45px
+        35px;
+
+    position:
+        relative;
+
+    box-shadow:
+        8px
+        15px
+        30px
+        rgba(
+            0,
+            0,
+            0,
+            .35
+        );
+
+    transform:
+        rotate(-2deg);
+
+    animation:
+        noteAppear
+        .35s
+        ease;
+
+    cursor:
+        pointer;
+
+    transition:
+        transform
+        .15s
+        ease;
+}
+
+
+.big-note:hover {
+
+    transform:
+        rotate(-2deg)
+        scale(1.02);
+}
+
+
+.big-note:active {
+
+    transform:
+        rotate(-2deg)
+        scale(.98);
+}
+
+
+#noteCategory {
+
+    font-size:
+        28px;
+
+    font-weight:
+        800;
+
+    text-transform:
+        none;
+
+    text-decoration:
+        underline;
+
+    text-underline-offset:
+        4px;
+
+    letter-spacing:
+        0;
+
+    color:
+        #29231c;
+
+    opacity:
+        1;
+
+    margin-bottom:
+        30px;
+}
+
+
+#noteText {
+
+    font-size:
+        28px;
+
+    line-height:
+        1.35;
+
+    font-weight:
+        400;
+
+    margin-bottom:
+        35px;
+}
+
+
+#closeButton {
+
+    background:
+        #29231c;
+
+    color:
+        white;
+
+    border:
+        0;
+
+    border-radius:
+        10px;
+
+    padding:
+        12px
+        18px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+}
+
+
+@keyframes noteAppear {
+
+    from {
+
+        opacity:
+            0;
+
+        transform:
+            scale(.7)
+            rotate(8deg);
+    }
+
+    to {
+
+        opacity:
+            1;
+
+        transform:
+            scale(1)
+            rotate(-2deg);
+    }
+}
+
+
+/* =========================
+   BACK TO JAR
+========================= */
+
+#backToJarButton {
+
+    border:
+        1px solid
+        #ddd5c8;
+
+    background:
+        white;
+
+    color:
+        #29231c;
+
+    padding:
+        9px
+        16px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        15px;
+
+    font-weight:
+        700;
+
+    cursor:
+        pointer;
+
+    margin-bottom:
+        20px;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:600px) {
+
+    .app {
+
+        padding:
+            20px
+            12px
+            40px;
+    }
+
+
+    #jarSection {
+
+        min-height:
+            500px;
+    }
+
+
+    .jar {
+
+        height:
+            390px;
+    }
+
+
+    .jar-notes {
+
+        top:
+            90px;
+
+        bottom:
+            25px;
+    }
+
+
+    .mini-note {
+
+        width:
+            43px;
+
+        height:
+            38px;
+    }
+
+
+    #noteText {
+
+        font-size:
+            23px;
+    }
+
+
+    .note-category {
+
+        font-size:
+            17px;
+
+        font-weight:
+            900;
+
+        text-transform:
+            none;
+
+        text-decoration:
+            underline;
+
+        text-underline-offset:
+            3px;
+
+        letter-spacing:
+            0;
+
+        color:
+            #000000;
+
+        opacity:
+            1;
+
+        margin-bottom:
+            15px;
+    }
+
+
+    #collectionLinkSection {
+
+        flex-direction:
+            column;
+
+        align-items:
+            center;
+    }
+
+
+    #collectionButton,
+    #resetButton {
+
+        display:
+            flex;
+
+        margin:
+            0;
+    }
+
+
+    .heart-sticker {
+
+        right:
+            22%;
+
+        top:
+            130px;
+
+        width:
+            40px;
+
+        height:
+            40px;
+
+        font-size:
+            23px;
+
+        transform:
+            rotate(
+                18deg
+            );
+    }
+
+}

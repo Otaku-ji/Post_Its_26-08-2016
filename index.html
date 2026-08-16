@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>26'08'2016</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="app">
+
+    <header>
+
+        <h1>26'08'2016</h1>
+
+        <div class="stats">
+
+            <div>
+                🫙
+                <span id="remaining">0</span>
+                remaining
+            </div>
+
+            <div>
+                📚
+                <span id="collected">0</span>
+                collected
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- JAR -->
+
+    <section id="jarSection">
+
+        <div
+            id="jar"
+            class="jar"
+            title="Click the jar to draw a Post-it"
+        >
+
+            <div class="jar-lid">
+
+                <div class="lid-highlight"></div>
+
+            </div>
+
+            <div class="jar-neck"></div>
+
+            <div
+                id="jarNotes"
+                class="jar-notes"
+            ></div>
+
+            <div class="jar-glass">
+
+                <div class="glass-highlight"></div>
+
+            </div>
+
+
+            <!-- HEART STICKER -->
+
+            <div
+                class="heart-sticker"
+                aria-hidden="true"
+            >
+                ♥
+            </div>
+
+
+            <div class="jar-bottom"></div>
+
+        </div>
+
+
+        <p id="status">
+            Tap the jar to draw a Post-it
+        </p>
+
+    </section>
+
+
+    <!-- COLLECTION / RESET -->
+
+    <section id="collectionLinkSection">
+
+        <button id="collectionButton">
+
+            <span class="button-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M5 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Z"
+                    />
+                    <path
+                        d="M17 6h2a2 2 0 0 1 2 2v12H7"
+                    />
+                    <path
+                        d="M8 8h6"
+                    />
+                    <path
+                        d="M8 12h6"
+                    />
+                </svg>
+
+            </span>
+
+            Go to My Collection
+
+        </button>
+
+
+        <button id="resetButton">
+
+            <span class="button-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+                    <path
+                        d="M4 12a8 8 0 1 0 2.3-5.7"
+                    />
+                    <path
+                        d="M4 5v5h5"
+                    />
+                </svg>
+
+            </span>
+
+            Reset Jar
+
+        </button>
+
+    </section>
+
+</div>
+
+
+<!-- NOTE MODAL -->
+
+<div
+    id="noteModal"
+    class="modal"
+>
+
+    <div
+        id="bigNote"
+        class="big-note"
+    >
+
+        <div id="noteCategory"></div>
+
+        <div id="noteText"></div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="app.js"></script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                navigator.serviceWorker
+                    .register("./sw.js")
+                    .then(
+                        registration => {
+
+                            console.log(
+                                "Service Worker registered:",
+                                registration.scope
+                            );
+
+                        }
+                    )
+                    .catch(
+                        error => {
+
+                            console.error(
+                                "Service Worker registration failed:",
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
+    }
+</script>
+
+</body>
+</html>

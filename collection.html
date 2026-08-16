@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>My Collection</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <button id="backToJarButton">
+        Back to jar
+    </button>
+
+    <header>
+
+        <h1>📚 My Collection</h1>
+
+        <div id="categoryButtons"></div>
+
+    </header>
+
+
+    <section id="collectionSection">
+
+        <div id="collectionGrid"></div>
+
+    </section>
+
+
+    <!-- NOTE MODAL -->
+
+    <div id="noteModal" class="modal">
+
+        <div
+            id="bigNote"
+            class="big-note"
+        >
+
+            <div id="noteCategory"></div>
+
+            <div id="noteText"></div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="collection.js"></script>
+
+<script>
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                navigator.serviceWorker
+                    .register("./sw.js")
+                    .then(
+                        registration => {
+
+                            console.log(
+                                "Service Worker registered:",
+                                registration.scope
+                            );
+
+                        }
+                    )
+                    .catch(
+                        error => {
+
+                            console.error(
+                                "Service Worker registration failed:",
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
+    }
+</script>
+
+</body>
+
+</html>
