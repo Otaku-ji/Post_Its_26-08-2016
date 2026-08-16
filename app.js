@@ -1686,6 +1686,49 @@ async function startApp() {
     }
 
 
+    /*
+       PIN must be entered before
+       accessing the game.
+
+       pin.html sets this value after
+       successful PIN verification.
+
+       It only lasts for this page
+       transition because we remove it
+       immediately after reading it.
+    */
+
+    const pinVerified =
+        sessionStorage.getItem(
+            "pin_verified"
+        );
+
+
+    if (
+        pinVerified !==
+        "true"
+    ) {
+
+        window.location.href =
+            "pin.html";
+
+        return;
+
+    }
+
+
+    /*
+       Consume the PIN verification.
+
+       This means refreshing index.html
+       will require the PIN again.
+    */
+
+    sessionStorage.removeItem(
+        "pin_verified"
+    );
+
+
     loadGame();
 
 }
