@@ -7,7 +7,11 @@ const APP_FILES = [
     "./collection.html",
     "./style.css",
     "./app.js",
-    "./collection.js"
+    "./collection.js",
+    "./pin.html",
+    "./pin.js",
+    "./setup-pin.html",
+    "./setup-pin.js"
 ];
 
 
@@ -97,17 +101,9 @@ self.addEventListener(
    FETCH
 ========================= */
 
-/* =========================
-   FETCH
-========================= */
-
 self.addEventListener(
     "fetch",
     event => {
-
-        /*
-           Only handle normal GET requests.
-        */
 
         if (
             event.request.method !==
@@ -119,15 +115,15 @@ self.addEventListener(
         }
 
 
-        /*
-           Do not cache Supabase/API requests.
-        */
-
         const url =
             new URL(
                 event.request.url
             );
 
+
+        /*
+           Never cache Supabase requests.
+        */
 
         if (
             url.hostname.endsWith(
@@ -141,142 +137,73 @@ self.addEventListener(
 
 
         /*
-           HTML pages:
-           NETWORK FIRST.
+           NETWORK FIRST
 
-           This means the browser checks
-           GitHub Pages for the newest HTML
-           whenever internet is available.
+           Try the newest version from
+           GitHub Pages first.
 
-           If offline, it uses the cached
-           version instead.
-        */
-
-        if (
-            event.request.destination ===
-                "document"
-        ) {
-
-            event.respondWith(
-
-                fetch(
-                    event.request
-                )
-                    .then(
-                        response => {
-
-                            if (
-                                response &&
-                                response.status ===
-                                    200
-                            ) {
-
-                                const responseClone =
-                                    response.clone();
-
-
-                                caches
-                                    .open(
-                                        CACHE_NAME
-                                    )
-                                    .then(
-                                        cache => {
-
-                                            cache.put(
-                                                event.request,
-                                                responseClone
-                                            );
-
-                                        }
-                                    );
-
-                            }
-
-
-                            return response;
-
-                        }
-                    )
-                    .catch(
-                        () =>
-                            caches.match(
-                                event.request
-                            )
-                    )
-
-            );
-
-            return;
-
-        }
-
-
-        /*
-           Other files:
-           CACHE FIRST.
-
-           CSS and JavaScript can still
-           work offline.
+           If there is no internet,
+           use the cached version.
         */
 
         event.respondWith(
 
-            caches
-                .match(
-                    event.request
-                )
+            fetch(
+                event.request
+            )
                 .then(
-                    cachedResponse => {
+                    response => {
+
+                        /*
+                           Only cache successful
+                           normal responses.
+                        */
 
                         if (
-                            cachedResponse
+                            response &&
+                            response.status === 200 &&
+                            response.type ===
+                                "basic"
                         ) {
 
-                            return cachedResponse;
+                            const responseClone =
+                                response.clone();
+
+
+                            caches
+                                .open(
+                                    CACHE_NAME
+                                )
+                                .then(
+                                    cache => {
+
+                                        cache.put(
+                                            event.request,
+                                            responseClone
+                                        );
+
+                                    }
+                                );
 
                         }
 
 
-                        return fetch(
+                        return response;
+
+                    }
+                )
+                .catch(
+                    () => {
+
+                        /*
+                           No internet.
+
+                           Use the cached version.
+                        */
+
+                        return caches.match(
                             event.request
-                        )
-                            .then(
-                                response => {
-
-                                    if (
-                                        response &&
-                                        response.status ===
-                                            200 &&
-                                        response.type ===
-                                            "basic"
-                                    ) {
-
-                                        const responseClone =
-                                            response.clone();
-
-
-                                        caches
-                                            .open(
-                                                CACHE_NAME
-                                            )
-                                            .then(
-                                                cache => {
-
-                                                    cache.put(
-                                                        event.request,
-                                                        responseClone
-                                                    );
-
-                                                }
-                                            );
-
-                                    }
-
-
-                                    return response;
-
-                                }
-                            );
+                        );
 
                     }
                 )
