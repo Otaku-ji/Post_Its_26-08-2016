@@ -18,12 +18,6 @@ const CATEGORIES_CACHE_KEY =
 const COLLECTION_CACHE_KEY =
     "postit_collection_cache";
 
-const PENDING_COLLECTIONS_KEY =
-    "postit_pending_collections";
-
-const PENDING_RESET_KEY =
-    "postit_pending_reset";
-
 
 /* =========================
    SUPABASE
@@ -40,6 +34,58 @@ if (
             SUPABASE_URL,
             SUPABASE_KEY
         );
+
+}
+
+/* =========================
+   AUTHENTICATION
+========================= */
+
+let currentUser = null;
+
+
+async function requireLogin() {
+
+    const {
+        data,
+        error
+    } = await db.auth.getSession();
+
+
+    if (error) {
+
+        console.error(
+            "AUTH SESSION ERROR:",
+            error
+        );
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    if (
+        !data ||
+        !data.session ||
+        !data.session.user
+    ) {
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    currentUser =
+        data.session.user;
+
+
+    return true;
 
 }
 
@@ -160,54 +206,6 @@ function saveCache(
 
 
 /* =========================
-   PENDING ACTIONS
-========================= */
-
-function getPendingCollections() {
-
-    return loadCache(
-        PENDING_COLLECTIONS_KEY,
-        []
-    );
-
-}
-
-
-function savePendingCollections(
-    ids
-) {
-
-    saveCache(
-        PENDING_COLLECTIONS_KEY,
-        ids
-    );
-
-}
-
-
-function isResetPending() {
-
-    return loadCache(
-        PENDING_RESET_KEY,
-        false
-    ) === true;
-
-}
-
-
-function setResetPending(
-    value
-) {
-
-    saveCache(
-        PENDING_RESET_KEY,
-        value
-    );
-
-}
-
-
-/* =========================
    LOAD LOCAL COLLECTION
 ========================= */
 
@@ -304,8 +302,7 @@ async function loadCollection() {
 
     /*
        Internet is available.
-       Refresh from Supabase and
-       upload any pending actions.
+       Refresh from Supabase.
     */
 
     try {
@@ -365,6 +362,29 @@ async function syncFromSupabase() {
 
 
     /* =========================
+       LOAD COLLECTION
+========================= */
+
+   const {
+    data: collections,
+    error: collectionsError
+    } = await db
+        .from("collections")
+        .select("note_id")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
+        .order("collected_at");
+
+    if (collectionsError) {
+
+        throw collectionsError;
+
+    }
+
+
+    /* =========================
        LOAD CATEGORIES
 ========================= */
 
@@ -387,7 +407,7 @@ async function syncFromSupabase() {
 
 
     /* =========================
-       UPDATE NOTE DATA
+       UPDATE LOCAL DATA
 ========================= */
 
     allNotes =
@@ -398,44 +418,12 @@ async function syncFromSupabase() {
         categoryData || [];
 
 
-    /* =========================
-       SYNC PENDING ACTIONS
-========================= */
-
-    await syncPendingChanges();
-
-
-    /* =========================
-       LOAD AUTHORITATIVE
-       COLLECTION STATE
-    ========================= */
-
-    const {
-        data: collections,
-        error: collectionsError
-    } = await db
-        .from("collections")
-        .select("note_id")
-        .order("collected_at");
-
-
-    if (collectionsError) {
-
-        throw collectionsError;
-
-    }
-
-
     const collectedIds =
         collections.map(
             item =>
                 item.note_id
         );
 
-
-    /* =========================
-       UPDATE LOCAL STATE
-========================= */
 
     collectedNotes =
         allNotes.filter(
@@ -448,7 +436,7 @@ async function syncFromSupabase() {
 
     /* =========================
        SAVE ONLINE STATE LOCALLY
-    ========================= */
+========================= */
 
     saveCache(
         NOTES_CACHE_KEY,
@@ -470,138 +458,11 @@ async function syncFromSupabase() {
 
     /* =========================
        UPDATE DISPLAY
-    ========================= */
+========================= */
 
     renderCategories();
 
     renderCollection();
-
-}
-
-
-/* =========================
-   SYNC PENDING CHANGES
-========================= */
-
-async function syncPendingChanges() {
-
-    /* =========================
-       PENDING RESET
-    ========================= */
-
-    if (isResetPending()) {
-
-        console.log(
-            "Pending reset found. Resetting Supabase collection..."
-        );
-
-
-        const {
-            error
-        } = await db
-            .from("collections")
-            .delete()
-            .not(
-                "note_id",
-                "is",
-                null
-            );
-
-
-        if (error) {
-
-            throw error;
-
-        }
-
-
-        /*
-           Reset succeeded.
-        */
-
-        setResetPending(
-            false
-        );
-
-
-        /*
-           Any pending collection
-           inserts are superseded
-           by the reset.
-        */
-
-        savePendingCollections(
-            []
-        );
-
-    }
-
-
-    /* =========================
-       PENDING COLLECTIONS
-    ========================= */
-
-    const pendingIds =
-        getPendingCollections();
-
-
-    if (
-        pendingIds.length === 0
-    ) {
-
-        return;
-
-    }
-
-
-    console.log(
-        "Syncing pending collections:",
-        pendingIds
-    );
-
-
-    for (
-        const noteId of pendingIds
-    ) {
-
-        const {
-            error
-        } = await db
-            .from("collections")
-            .insert({
-                note_id:
-                    noteId
-            });
-
-
-        /*
-           If one upload fails,
-           keep the entire remaining
-           queue for the next attempt.
-        */
-
-        if (error) {
-
-            console.error(
-                "PENDING COLLECTION ERROR:",
-                error
-            );
-
-            throw error;
-
-        }
-
-    }
-
-
-    /*
-       Everything was successfully
-       uploaded.
-    */
-
-    savePendingCollections(
-        []
-    );
 
 }
 
@@ -646,7 +507,7 @@ function renderCategories() {
 
     /* =========================
        ALL BUTTON
-    ========================= */
+========================= */
 
     const allButton =
         document.createElement(
@@ -696,7 +557,7 @@ function renderCategories() {
 
     /* =========================
        CATEGORY BUTTONS
-    ========================= */
+========================= */
 
     categories.forEach(
         category => {
@@ -822,7 +683,7 @@ function renderCollection() {
 
             /* =========================
                CATEGORY
-            ========================= */
+========================= */
 
             const category =
                 document.createElement(
@@ -842,7 +703,7 @@ function renderCollection() {
 
             /* =========================
                MESSAGE
-            ========================= */
+========================= */
 
             const message =
                 document.createElement(
@@ -870,7 +731,7 @@ function renderCollection() {
 
             /* =========================
                OPEN NOTE
-            ========================= */
+========================= */
 
             card.addEventListener(
                 "click",
@@ -1084,4 +945,21 @@ function formatCategory(
    START
 ========================= */
 
-loadCollection();
+async function startCollection() {
+
+    const loggedIn =
+        await requireLogin();
+
+
+    if (!loggedIn) {
+
+        return;
+
+    }
+
+
+    loadCollection();
+
+}
+
+startCollection();

@@ -6,6 +6,118 @@ const SUPABASE_KEY =
 
 
 /* =========================
+   AUTHENTICATION
+========================= */
+
+async function requireLogin() {
+
+    if (!db) {
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    const {
+        data,
+        error
+    } = await db.auth.getSession();
+
+
+    if (error) {
+
+        console.error(
+            "AUTH SESSION ERROR:",
+            error
+        );
+
+    }
+
+
+    /*
+       Supabase keeps the session
+       locally, so this also works
+       when the device is offline.
+    */
+
+    if (
+        data &&
+        data.session
+    ) {
+
+        return true;
+
+    }
+
+
+    /*
+       No locally stored session.
+       The player needs to log in.
+    */
+
+    window.location.href =
+        "login.html";
+
+    return false;
+
+}
+
+
+/* =========================
+   CURRENT USER
+========================= */
+
+let currentUser = null;
+
+
+async function loadCurrentUser() {
+
+    const {
+        data,
+        error
+    } = await db.auth.getSession();
+
+
+    if (error) {
+
+        console.error(
+            "USER SESSION ERROR:",
+            error
+        );
+
+        return false;
+
+    }
+
+
+    if (
+        !data ||
+        !data.session ||
+        !data.session.user
+    ) {
+
+        console.error(
+            "No authenticated user found."
+        );
+
+        return false;
+
+    }
+
+
+    currentUser =
+        data.session.user;
+
+
+    return true;
+
+}
+
+
+/* =========================
    LOCAL STORAGE
 ========================= */
 
@@ -15,14 +127,61 @@ const NOTES_CACHE_KEY =
 const CATEGORIES_CACHE_KEY =
     "postit_categories_cache";
 
-const COLLECTION_CACHE_KEY =
-    "postit_collection_cache";
 
-const PENDING_COLLECTIONS_KEY =
-    "postit_pending_collections";
+/*
+   Collection data is stored
+   separately for each user.
+*/
 
-const PENDING_RESET_KEY =
-    "postit_pending_reset";
+function getCollectionCacheKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+
+    return (
+        "postit_collection_cache_" +
+        currentUser.id
+    );
+
+}
+
+
+function getPendingCollectionsKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+
+    return (
+        "postit_pending_collections_" +
+        currentUser.id
+    );
+
+}
+
+
+function getPendingResetKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+
+    return (
+        "postit_pending_reset_" +
+        currentUser.id
+    );
+
+}
 
 
 /* =========================
@@ -214,8 +373,19 @@ function loadCache(
 
 function getPendingCollections() {
 
+    const key =
+        getPendingCollectionsKey();
+
+
+    if (!key) {
+
+        return [];
+
+    }
+
+
     return loadCache(
-        PENDING_COLLECTIONS_KEY,
+        key,
         []
     );
 
@@ -226,8 +396,19 @@ function savePendingCollections(
     ids
 ) {
 
+    const key =
+        getPendingCollectionsKey();
+
+
+    if (!key) {
+
+        return;
+
+    }
+
+
     saveCache(
-        PENDING_COLLECTIONS_KEY,
+        key,
         ids
     );
 
@@ -236,8 +417,19 @@ function savePendingCollections(
 
 function isResetPending() {
 
+    const key =
+        getPendingResetKey();
+
+
+    if (!key) {
+
+        return false;
+
+    }
+
+
     return loadCache(
-        PENDING_RESET_KEY,
+        key,
         false
     ) === true;
 
@@ -248,8 +440,19 @@ function setResetPending(
     value
 ) {
 
+    const key =
+        getPendingResetKey();
+
+
+    if (!key) {
+
+        return;
+
+    }
+
+
     saveCache(
-        PENDING_RESET_KEY,
+        key,
         value
     );
 
@@ -274,13 +477,21 @@ function saveLocalGame() {
     );
 
 
-    saveCache(
-        COLLECTION_CACHE_KEY,
-        collectedNotes.map(
-            note =>
-                note.id
-        )
-    );
+    const collectionKey =
+        getCollectionCacheKey();
+
+
+    if (collectionKey) {
+
+        saveCache(
+            collectionKey,
+            collectedNotes.map(
+                note =>
+                    note.id
+            )
+        );
+
+    }
 
 }
 
@@ -305,11 +516,17 @@ function loadLocalGame() {
         );
 
 
+    const collectionKey =
+        getCollectionCacheKey();
+
+
     const collectedIds =
-        loadCache(
-            COLLECTION_CACHE_KEY,
-            []
-        );
+        collectionKey
+            ? loadCache(
+                collectionKey,
+                []
+            )
+            : [];
 
 
     availableNotes =
@@ -344,13 +561,21 @@ function loadLocalGame() {
 
 function saveCollectedIds() {
 
-    saveCache(
-        COLLECTION_CACHE_KEY,
-        collectedNotes.map(
-            note =>
-                note.id
-        )
-    );
+    const collectionKey =
+        getCollectionCacheKey();
+
+
+    if (collectionKey) {
+
+        saveCache(
+            collectionKey,
+            collectedNotes.map(
+                note =>
+                    note.id
+            )
+        );
+
+    }
 
 }
 
@@ -464,7 +689,7 @@ async function syncFromSupabase() {
 
     /* =========================
        LOAD CATEGORIES
-    ========================= */
+========================= */
 
     const {
         data: categoryData,
@@ -515,6 +740,10 @@ async function syncFromSupabase() {
     } = await db
         .from("collections")
         .select("note_id")
+        .eq(
+            "user_id",
+            currentUser.id
+        )
         .order("collected_at");
 
 
@@ -590,10 +819,9 @@ async function syncPendingChanges() {
         } = await db
             .from("collections")
             .delete()
-            .not(
-                "note_id",
-                "is",
-                null
+            .eq(
+                "user_id",
+                currentUser.id
             );
 
 
@@ -649,7 +877,10 @@ async function syncPendingChanges() {
             .from("collections")
             .insert({
                 note_id:
-                    noteId
+                    noteId,
+
+                user_id:
+                    currentUser.id
             });
 
 
@@ -780,7 +1011,10 @@ async function drawNote() {
                 .from("collections")
                 .insert({
                     note_id:
-                        note.id
+                        note.id,
+
+                    user_id:
+                        currentUser.id
                 });
 
 
@@ -1225,10 +1459,9 @@ resetButton.addEventListener(
                 } = await db
                     .from("collections")
                     .delete()
-                    .not(
-                        "note_id",
-                        "is",
-                        null
+                    .eq(
+                        "user_id",
+                        currentUser.id
                     );
 
 
@@ -1426,4 +1659,36 @@ function formatCategory(
    START
 ========================= */
 
-loadGame();
+async function startApp() {
+
+    const loggedIn =
+        await requireLogin();
+
+
+    if (!loggedIn) {
+
+        return;
+
+    }
+
+
+    const userLoaded =
+        await loadCurrentUser();
+
+
+    if (!userLoaded) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+
+    }
+
+
+    loadGame();
+
+}
+
+
+startApp();

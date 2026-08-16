@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Post-it Game Login</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="login-container">
+
+        <h1>📚 26'08'2016 - Jar</h1>
+
+        <p>Log in to continue.</p>
+
+        <form id="loginForm">
+
+            <input
+                id="email"
+                type="email"
+                placeholder="Email"
+                autocomplete="email"
+                required
+            >
+
+            <input
+                id="password"
+                type="password"
+                placeholder="Password"
+                autocomplete="current-password"
+                required
+            >
+
+            <button
+                id="loginButton"
+                type="submit"
+            >
+                Login
+            </button>
+
+        </form>
+
+        <p id="loginStatus"></p>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="login.js"></script>
+
+</body>
+
+</html>
