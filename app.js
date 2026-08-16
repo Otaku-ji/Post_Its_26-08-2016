@@ -277,24 +277,17 @@ const resetButton =
    BUTTON TEXT HELPERS
 ========================= */
 
-function setResetButtonText(
-    text
-) {
+function setResetButtonText(text) {
 
-    const textNode =
-        Array.from(
-            resetButton.childNodes
-        ).find(
-            node =>
-                node.nodeType ===
-                Node.TEXT_NODE
+    const textElement =
+        document.getElementById(
+            "resetButtonText"
         );
 
+    if (textElement) {
 
-    if (textNode) {
-
-        textNode.textContent =
-            `\n            ${text}\n\n        `;
+        textElement.textContent =
+            text;
 
     }
 

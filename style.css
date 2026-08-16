@@ -1553,6 +1553,16 @@ h1 {
         20px;
 }
 
+.copyright {
+    position: fixed;
+    bottom: 10px;
+    right: 15px;
+    font-size: 12px;
+    color: #777;
+    opacity: 0.7;
+    z-index: 10;
+    pointer-events: none;
+}
 
 /* =========================
    MOBILE
