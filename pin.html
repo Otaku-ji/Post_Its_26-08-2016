@@ -67,28 +67,9 @@
     </main>
 
 
-    <script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        const pinInput =
-            document.getElementById(
-                "pinInput"
-            );
-
-
-        pinInput.addEventListener(
-            "input",
-            () => {
-
-                pinInput.value =
-                    pinInput.value.replace(
-                        /\D/g,
-                        ""
-                    );
-
-            }
-        );
-
-    </script>
+<script src="pin.js"></script>
 
 </body>
 
