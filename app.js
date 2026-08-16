@@ -716,6 +716,15 @@ async function syncFromSupabase() {
     allNotes =
         notes || [];
 
+    console.log(
+        "NOTES LOADED:",
+        notes
+    );
+
+    console.log(
+        "NUMBER OF NOTES:",
+        notes ? notes.length : "null"
+    );
 
     categories =
         categoryData || [];
