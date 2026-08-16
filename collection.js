@@ -695,10 +695,8 @@ function renderCollection() {
                 "note-category";
 
 
-            category.textContent =
-                formatCategory(
-                    note.category
-                );
+            category.textContent = 
+                note.category;
 
 
             /* =========================
