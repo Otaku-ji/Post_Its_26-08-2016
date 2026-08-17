@@ -981,6 +981,25 @@ function updatePinActivity() {
 
 }
 
+/* =========================
+   COLLECTION ACTIVITY
+========================= */
+
+document.addEventListener(
+    "click",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "touchstart",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "keydown",
+    updatePinActivity
+);
+
 
 /* =========================
    START
