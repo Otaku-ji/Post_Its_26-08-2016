@@ -1564,6 +1564,24 @@ h1 {
     pointer-events: none;
 }
 
+
+/* =========================
+   MOBILE COPYRIGHT
+========================= */
+
+@media (max-width: 600px) {
+
+    .copyright {
+        position: static;
+        display: block;
+        width: 100%;
+        margin-top: 25px;
+        padding-bottom: 10px;
+        text-align: center;
+    }
+
+}
+
 /* =========================
    MOBILE
 ========================= */
@@ -1830,27 +1848,6 @@ h1 {
 
 .pin-dots span.filled {
     background: #222;
-}
-
-/* =========================
-   FOOTER
-========================= */
-
-footer {
-    position: fixed;
-    bottom: 10px;
-    right: 10px;
-    z-index: 1000;
-}
-
-@media (max-width: 600px) {
-
-    footer {
-        position: static;
-        margin-top: 20px;
-        width: 100%;
-    }
-
 }
 
 /* =========================
