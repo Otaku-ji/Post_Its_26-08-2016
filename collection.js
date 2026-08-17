@@ -936,6 +936,51 @@ function formatCategory(
 
 }
 
+/* =========================
+   ACCESS
+========================= */
+
+const PIN_SESSION_KEY =
+    "postit_pin_last_activity";
+
+const PIN_TIMEOUT =
+    15 * 60 * 1000;
+
+
+function isPinSessionActive() {
+
+    const lastActivity =
+        Number(
+            localStorage.getItem(
+                PIN_SESSION_KEY
+            )
+        );
+
+
+    if (!lastActivity) {
+
+        return false;
+
+    }
+
+
+    return (
+        Date.now() - lastActivity <
+        PIN_TIMEOUT
+    );
+
+}
+
+
+function updatePinActivity() {
+
+    localStorage.setItem(
+        PIN_SESSION_KEY,
+        Date.now().toString()
+    );
+
+}
+
 
 /* =========================
    START
@@ -954,8 +999,53 @@ async function startCollection() {
     }
 
 
+    /*
+       If the user came from the
+       Collection button in the game,
+       allow access directly.
+    */
+
+    const fromGame =
+        sessionStorage.getItem(
+            "collection_from_game"
+        );
+
+
+    if (fromGame === "true") {
+
+        sessionStorage.removeItem(
+            "collection_from_game"
+        );
+
+        updatePinActivity();
+
+        loadCollection();
+
+        return;
+
+    }
+
+
+    /*
+       Direct access to collection.html.
+       Require an active PIN session.
+    */
+
+    if (!isPinSessionActive()) {
+
+        window.location.href =
+            "pin.html";
+
+        return;
+
+    }
+
+
+    updatePinActivity();
+
     loadCollection();
 
 }
+
 
 startCollection();

@@ -1363,6 +1363,11 @@ collectionButton.addEventListener(
     "click",
     () => {
 
+        sessionStorage.setItem(
+            "collection_from_game",
+            "true"
+        );
+
         window.location.href =
             "collection.html";
 
@@ -1712,6 +1717,25 @@ function isPinSessionActive() {
         PIN_TIMEOUT;
 
 }
+
+/* =========================
+   PIN ACTIVITY
+========================= */
+
+document.addEventListener(
+    "click",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "touchstart",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "keydown",
+    updatePinActivity
+);
 
 /* =========================
    START
