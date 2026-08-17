@@ -832,7 +832,7 @@ function renderCollection() {
 
             /* =========================
                CATEGORY
-========================= */
+            ========================= */
 
             const category =
                 document.createElement(
@@ -849,8 +849,8 @@ function renderCollection() {
 
 
             /* =========================
-               MESSAGE
-========================= */
+            MESSAGE / IMAGE
+            ========================= */
 
             const message =
                 document.createElement(
@@ -862,8 +862,120 @@ function renderCollection() {
                 "note-message";
 
 
-            message.textContent =
-                note.text;
+            if (
+                note.image_url
+            ) {
+
+                /*
+                Try to load the image from
+                the local cache first.
+                */
+
+                getCachedNoteImage(
+                    note.image_url
+                ).then(
+                    imageUrl => {
+
+                        if (imageUrl) {
+
+                            message.innerHTML =
+                                "";
+
+
+                            const image =
+                                document.createElement(
+                                    "img"
+                                );
+
+
+                            image.src =
+                                imageUrl;
+
+
+                            image.className =
+                                "collection-note-image";
+
+
+                            image.alt =
+                                "Post-it image";
+
+
+                            message.appendChild(
+                                image
+                            );
+
+                            return;
+
+                        }
+
+
+                        /*
+                        Image isn't cached yet.
+                        Download it when online.
+                        */
+
+                        if (navigator.onLine) {
+
+                            cacheNoteImage(
+                                note.image_url
+                            ).then(
+                                () => {
+
+                                    return getCachedNoteImage(
+                                        note.image_url
+                                    );
+
+                                }
+                            ).then(
+                                imageUrl => {
+
+                                    if (!imageUrl) {
+
+                                        return;
+
+                                    }
+
+
+                                    message.innerHTML =
+                                        "";
+
+
+                                    const image =
+                                        document.createElement(
+                                            "img"
+                                        );
+
+
+                                    image.src =
+                                        imageUrl;
+
+
+                                    image.className =
+                                        "collection-note-image";
+
+
+                                    image.alt =
+                                        "Post-it image";
+
+
+                                    message.appendChild(
+                                        image
+                                    );
+
+                                }
+                            );
+
+                        }
+
+                    }
+                );
+
+            } else {
+
+                message.textContent =
+                    note.text || "";
+
+            }
 
 
             card.appendChild(
