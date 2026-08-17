@@ -1843,6 +1843,16 @@ footer {
     z-index: 1000;
 }
 
+@media (max-width: 600px) {
+
+    footer {
+        position: static;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+}
+
 /* =========================
    NOTE IMAGE
 ========================= */
