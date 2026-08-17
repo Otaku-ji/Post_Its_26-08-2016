@@ -1525,35 +1525,69 @@ h1 {
 
 #backToJarButton {
 
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        9px;
+
+    width:
+        max-content;
+
     border:
-        1px solid
-        #ddd5c8;
+        0;
 
     background:
-        white;
-
-    color:
         #29231c;
 
+    color:
+        white;
+
     padding:
-        9px
-        16px;
+        12px
+        24px;
 
     border-radius:
-        999px;
+        12px;
 
     font-size:
-        15px;
+        16px;
 
     font-weight:
-        700;
+        800;
 
     cursor:
         pointer;
 
     margin-bottom:
         20px;
+
+    transition:
+        transform
+        .15s
+        ease,
+        opacity
+        .15s
+        ease;
 }
+
+
+#backToJarButton:hover {
+
+    transform:
+        translateY(-2px);
+}
+
+/* =========================
+   COPYRIGHT
+========================= */
+
 
 .copyright {
     position: fixed;
