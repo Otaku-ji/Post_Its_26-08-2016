@@ -1934,8 +1934,8 @@ h1 {
 }
 
 #ogButton img {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
 
     object-fit: contain;
 
@@ -1999,4 +1999,22 @@ h1 {
         rgba(0, 0, 0, .40);
 
     cursor: pointer;
+}
+
+/* =========================
+   OG BUTTON FINAL POSITION
+========================= */
+
+#ogButton {
+    position: fixed !important;
+
+    left: 15px !important;
+    right: auto !important;
+
+    bottom: 45px !important;
+
+    width: 55px;
+    height: 55px;
+
+    padding: 0;
 }
