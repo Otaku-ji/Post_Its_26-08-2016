@@ -1934,8 +1934,8 @@ h1 {
 }
 
 #ogButton img {
-    width: 40px;
-    height: 40px;
+    width: 52px;
+    height: 52px;
 
     object-fit: contain;
 
@@ -2017,4 +2017,22 @@ h1 {
     height: 55px;
 
     padding: 0;
+}
+
+@media (max-width: 600px) {
+
+    #ogButton {
+        bottom: 70px !important;
+    }
+
+}
+
+@media (max-width: 600px) {
+
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
+    }
+
 }
