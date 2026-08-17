@@ -2096,3 +2096,96 @@ h1 {
     }
 
 }
+
+/* =========================
+   COLLECTION SEARCH
+========================= */
+
+#collectionSearch {
+
+    display:
+        flex;
+
+    justify-content:
+        center;
+
+    width:
+        100%;
+
+    margin:
+        0
+        0
+        20px;
+}
+
+
+#collectionSearchInput {
+
+    width:
+        min(
+            500px,
+            100%
+        );
+
+    padding:
+        12px
+        18px;
+
+    border:
+        1px solid
+        #ddd5c8;
+
+    border-radius:
+        12px;
+
+    background:
+        white;
+
+    color:
+        #29231c;
+
+    font-family:
+        inherit;
+
+    font-size:
+        16px;
+
+    outline:
+        none;
+
+    box-shadow:
+        0
+        3px
+        10px
+        rgba(
+            0,
+            0,
+            0,
+            .06
+        );
+}
+
+
+#collectionSearchInput:focus {
+
+    border-color:
+        #29231c;
+
+    box-shadow:
+        0
+        3px
+        12px
+        rgba(
+            0,
+            0,
+            0,
+            .10
+        );
+}
+
+
+#collectionSearchInput::placeholder {
+
+    color:
+        #888;
+}

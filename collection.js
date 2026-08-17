@@ -106,6 +106,8 @@ let categories = [];
 let selectedCategory =
     "ALL";
 
+let searchQuery =
+    "";
 
 /* =========================
    ELEMENTS
@@ -119,6 +121,11 @@ const collectionGrid =
 const categoryButtons =
     document.getElementById(
         "categoryButtons"
+    );
+
+const collectionSearchInput =
+    document.getElementById(
+        "collectionSearchInput"
     );
 
 const modal =
@@ -777,17 +784,54 @@ function renderCollection() {
         "";
 
 
+    const query =
+        searchQuery
+            .trim()
+            .toLowerCase();
+
+
     const filteredNotes =
-        selectedCategory ===
-        "ALL"
+        collectedNotes.filter(
+            note => {
 
-            ? collectedNotes
+                /*
+                   CATEGORY FILTER
+                */
 
-            : collectedNotes.filter(
-                note =>
+                const matchesCategory =
+                    selectedCategory ===
+                    "ALL" ||
                     note.category ===
-                    selectedCategory
-            );
+                    selectedCategory;
+
+
+                /*
+                   SEARCH FILTER
+                */
+
+                const matchesSearch =
+                    !query ||
+                    (
+                        note.category &&
+                        note.category
+                            .toLowerCase()
+                            .includes(query)
+                    ) ||
+                    (
+                        note.text &&
+                        note.text
+                            .toLowerCase()
+                            .includes(query)
+                    );
+
+
+                return (
+                    matchesCategory &&
+                    matchesSearch
+                );
+
+            }
+        );
 
 
     if (
@@ -795,7 +839,7 @@ function renderCollection() {
     ) {
 
         collectionGrid.innerHTML =
-            "<p>No Post-its collected yet.</p>";
+            "<p>No matching Post-its found.</p>";
 
         return;
 
@@ -844,12 +888,12 @@ function renderCollection() {
                 "note-category";
 
 
-            category.textContent = 
+            category.textContent =
                 note.category;
 
 
             /* =========================
-            MESSAGE / IMAGE
+               MESSAGE / IMAGE
             ========================= */
 
             const message =
@@ -865,11 +909,6 @@ function renderCollection() {
             if (
                 note.image_url
             ) {
-
-                /*
-                Try to load the image from
-                the local cache first.
-                */
 
                 getCachedNoteImage(
                     note.image_url
@@ -904,17 +943,15 @@ function renderCollection() {
                                 image
                             );
 
+
                             return;
 
                         }
 
 
-                        /*
-                        Image isn't cached yet.
-                        Download it when online.
-                        */
-
-                        if (navigator.onLine) {
+                        if (
+                            navigator.onLine
+                        ) {
 
                             cacheNoteImage(
                                 note.image_url
@@ -990,7 +1027,7 @@ function renderCollection() {
 
             /* =========================
                OPEN NOTE
-========================= */
+            ========================= */
 
             card.addEventListener(
                 "click",
@@ -1013,6 +1050,21 @@ function renderCollection() {
 
 }
 
+/* =========================
+   COLLECTION SEARCH
+========================= */
+
+collectionSearchInput.addEventListener(
+    "input",
+    () => {
+
+        searchQuery =
+            collectionSearchInput.value;
+
+        renderCollection();
+
+    }
+);
 
 /* =========================
    SHOW NOTE
