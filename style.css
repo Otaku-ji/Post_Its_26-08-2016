@@ -2066,7 +2066,7 @@ h1 {
     }
 
     html,
-    body {
+    body:not(.collection-page) {
         height: 100%;
         overflow: hidden;
     }
@@ -2076,7 +2076,7 @@ h1 {
 @media (max-width: 600px) {
 
     html,
-    body {
+    body:not(.collection-page) {
         height: 100%;
         overflow: hidden;
     }
