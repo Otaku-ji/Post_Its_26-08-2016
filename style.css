@@ -2227,13 +2227,14 @@ h1 {
 
 @media (max-width: 600px) {
 
-    html:has(body.collection-page),
+    html,
     body.collection-page {
 
-        height: auto;
-        min-height: 100%;
-        overflow-x: hidden;
-        overflow-y: auto;
+        height: auto !important;
+        min-height: 100vh !important;
+
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
 
     }
 
@@ -2241,6 +2242,8 @@ h1 {
 
         min-height: 100vh;
         height: auto;
+
+        padding-bottom: 80px;
 
     }
 
