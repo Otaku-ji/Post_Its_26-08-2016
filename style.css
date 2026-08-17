@@ -2222,20 +2222,26 @@ h1 {
 }
 
 /* =========================
-   COLLECTION MOBILE SCROLL
+   COLLECTION PAGE MOBILE SCROLL
 ========================= */
 
 @media (max-width: 600px) {
 
-    body:has(#collectionGrid) {
+    html:has(body.collection-page),
+    body.collection-page {
+
         height: auto;
-        min-height: 100vh;
-        overflow-y: auto;
+        min-height: 100%;
         overflow-x: hidden;
+        overflow-y: auto;
+
     }
 
-    body:has(#collectionGrid) .app {
+    body.collection-page .app {
+
         min-height: 100vh;
+        height: auto;
+
     }
 
 }
