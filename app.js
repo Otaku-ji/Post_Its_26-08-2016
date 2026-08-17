@@ -1654,6 +1654,58 @@ function formatCategory(
 
 }
 
+/* =========================
+   PIN SESSION
+========================= */
+
+const PIN_SESSION_KEY =
+    "postit_pin_last_activity";
+
+const PIN_TIMEOUT =
+    15 * 60 * 1000; // 15 minutes
+
+
+function updatePinActivity() {
+
+    localStorage.setItem(
+        PIN_SESSION_KEY,
+        Date.now().toString()
+    );
+
+}
+
+
+function isPinSessionActive() {
+
+    const lastActivity =
+        Number(
+            localStorage.getItem(
+                PIN_SESSION_KEY
+            )
+        );
+
+
+    if (!lastActivity) {
+
+        return false;
+
+    }
+
+
+    return (
+        Date.now() - lastActivity <
+        PIN_TIMEOUT
+    );
+
+}
+
+
+function startPinSession() {
+
+    updatePinActivity();
+
+}
+
 
 /* =========================
    START
@@ -1687,27 +1739,11 @@ async function startApp() {
 
 
     /*
-       PIN must be entered before
-       accessing the game.
-
-       pin.html sets this value after
-       successful PIN verification.
-
-       It only lasts for this page
-       transition because we remove it
-       immediately after reading it.
+   PIN session lasts 15 minutes
+   from the last activity.
     */
 
-    const pinVerified =
-        sessionStorage.getItem(
-            "pin_verified"
-        );
-
-
-    if (
-        pinVerified !==
-        "true"
-    ) {
+    if (!isPinSessionActive()) {
 
         window.location.href =
             "pin.html";
@@ -1717,21 +1753,26 @@ async function startApp() {
     }
 
 
-    /*
-       Consume the PIN verification.
+    updatePinActivity();
 
-       This means refreshing index.html
-       will require the PIN again.
-    */
+        loadGame();
 
-    sessionStorage.removeItem(
-        "pin_verified"
+    }
+
+    document.addEventListener(
+        "click",
+        updatePinActivity
     );
 
+    document.addEventListener(
+        "touchstart",
+        updatePinActivity
+    );
 
-    loadGame();
-
-}
+    document.addEventListener(
+        "keydown",
+        updatePinActivity
+    );
 
 
 startApp();

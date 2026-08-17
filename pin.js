@@ -234,9 +234,9 @@ async function checkPin() {
                Allow access to the game.
             */
 
-            sessionStorage.setItem(
-                "pin_verified",
-                "true"
+            localStorage.setItem(
+                "postit_pin_last_activity",
+                Date.now().toString()
             );
 
 
