@@ -1732,6 +1732,15 @@ h1 {
 
 }
 
+@media(max-width:600px) {
+
+    #ogButton {
+        left: 10px;
+        bottom: 10px;
+    }
+
+}
+
 /* =========================
    PIN PAGE
 ========================= */
@@ -1891,7 +1900,6 @@ h1 {
     padding: 8px;
     box-sizing: border-box;
 }
-
 /* =========================
    OG BUTTON
 ========================= */
@@ -1904,6 +1912,8 @@ h1 {
 
     width: 55px;
     height: 55px;
+
+    padding: 0;
 
     border: none;
     border-radius: 50%;
