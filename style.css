@@ -1732,15 +1732,6 @@ h1 {
 
 }
 
-@media(max-width:600px) {
-
-    #ogButton {
-        left: 10px;
-        bottom: 10px;
-    }
-
-}
-
 /* =========================
    PIN PAGE
 ========================= */
@@ -1900,15 +1891,16 @@ h1 {
     padding: 8px;
     box-sizing: border-box;
 }
+
 /* =========================
    OG BUTTON
 ========================= */
 
 #ogButton {
-    position: absolute;
+    position: fixed;
 
-    left: 20px;
-    bottom: 20px;
+    left: 15px;
+    bottom: 45px;
 
     width: 55px;
     height: 55px;
@@ -1934,11 +1926,22 @@ h1 {
         0 4px 10px
         rgba(0, 0, 0, .20);
 
-    z-index: 15;
+    z-index: 1500;
 
     transition:
         transform .15s ease,
         opacity .15s ease;
+}
+
+#ogButton img {
+    width: 32px;
+    height: 32px;
+
+    object-fit: contain;
+
+    display: block;
+
+    pointer-events: none;
 }
 
 #ogButton:hover {
