@@ -180,6 +180,8 @@ h1 {
 
 #jarSection {
 
+    position: relative;
+
     min-height:
         620px;
 
@@ -1888,4 +1890,100 @@ h1 {
     object-fit: contain;
     padding: 8px;
     box-sizing: border-box;
+}
+
+/* =========================
+   OG BUTTON
+========================= */
+
+#ogButton {
+    position: absolute;
+
+    left: 20px;
+    bottom: 20px;
+
+    width: 55px;
+    height: 55px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #29231c;
+    color: white;
+
+    font-size: 16px;
+    font-weight: 800;
+
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 4px 10px
+        rgba(0, 0, 0, .20);
+
+    z-index: 15;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+#ogButton:hover {
+    transform: translateY(-2px);
+}
+
+#ogButton:active {
+    transform: scale(.95);
+}
+
+/* =========================
+   OG PHOTO OVERLAY
+========================= */
+
+#ogOverlay {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(20, 17, 13, .75);
+
+    display: none;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 2000;
+
+    cursor: pointer;
+}
+
+
+#ogOverlay.visible {
+    display: flex;
+}
+
+
+#ogImage {
+    display: block;
+
+    max-width: 90vw;
+    max-height: 85vh;
+
+    width: auto;
+    height: auto;
+
+    object-fit: contain;
+
+    border-radius: 8px;
+
+    box-shadow:
+        0 15px 40px
+        rgba(0, 0, 0, .40);
+
+    cursor: pointer;
 }

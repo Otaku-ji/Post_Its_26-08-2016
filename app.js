@@ -507,6 +507,241 @@ async function getCachedNoteImage(
 
 }
 
+/* =========================
+   OG JAR PHOTO
+========================= */
+
+const OG_JAR_IMAGE =
+    "OG_JAR.jpeg";
+
+
+const ogButton =
+    document.getElementById(
+        "ogButton"
+    );
+
+const ogOverlay =
+    document.getElementById(
+        "ogOverlay"
+    );
+
+const ogImage =
+    document.getElementById(
+        "ogImage"
+    );
+
+
+async function cacheOGJarImage() {
+
+    if (
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-images")
+                .createSignedUrl(
+                    OG_JAR_IMAGE,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "OG IMAGE SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "OG IMAGE DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        await cache.put(
+            OG_JAR_IMAGE,
+            response.clone()
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "OG IMAGE CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedOGJarImage() {
+
+    try {
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                OG_JAR_IMAGE
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "OG CACHED IMAGE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function showOGJar() {
+
+    let imageUrl =
+        await getCachedOGJarImage();
+
+
+    /*
+       If the image isn't cached,
+       download it from Supabase.
+    */
+
+    if (
+        !imageUrl &&
+        navigator.onLine
+    ) {
+
+        const cached =
+            await cacheOGJarImage();
+
+
+        if (cached) {
+
+            imageUrl =
+                await getCachedOGJarImage();
+
+        }
+
+    }
+
+
+    if (!imageUrl) {
+
+        console.error(
+            "OG jar image is not available."
+        );
+
+        return;
+
+    }
+
+
+    ogImage.src =
+        imageUrl;
+
+
+    ogOverlay.classList.add(
+        "visible"
+    );
+
+}
+
+
+if (ogButton) {
+
+    ogButton.addEventListener(
+        "click",
+        showOGJar
+    );
+
+}
+
+
+if (ogOverlay) {
+
+    ogOverlay.addEventListener(
+        "click",
+        () => {
+
+            ogOverlay.classList.remove(
+                "visible"
+            );
+
+
+            ogImage.src =
+                "";
+
+        }
+    );
+
+}
 
 /* =========================
    PENDING ACTIONS
