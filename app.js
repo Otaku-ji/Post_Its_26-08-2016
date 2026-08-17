@@ -127,6 +127,8 @@ const NOTES_CACHE_KEY =
 const CATEGORIES_CACHE_KEY =
     "postit_categories_cache";
 
+const IMAGE_CACHE_NAME =
+    "postit-image-cache-v1";
 
 /*
    Collection data is stored
@@ -354,6 +356,152 @@ function loadCache(
         );
 
         return fallback;
+
+    }
+
+}
+
+/* =========================
+   IMAGE CACHE
+========================= */
+
+async function cacheNoteImage(
+    imagePath
+) {
+
+    if (
+        !imagePath ||
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-images")
+                .createSignedUrl(
+                    imagePath,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "IMAGE SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "IMAGE DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        await cache.put(
+            imagePath,
+            response.clone()
+        );
+
+
+        return imagePath;
+
+    } catch (error) {
+
+        console.error(
+            "IMAGE CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedNoteImage(
+    imagePath
+) {
+
+    if (!imagePath) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                imagePath
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "CACHED IMAGE ERROR:",
+            error
+        );
+
+        return null;
 
     }
 
@@ -1154,7 +1302,7 @@ function getCategoryColor(
    SHOW NOTE
 ========================= */
 
-function showNote(
+async function showNote(
     note
 ) {
 
@@ -1162,8 +1310,14 @@ function showNote(
         note.category;
 
 
+    /*
+       Always start with the
+       normal text hidden/shown
+       according to the note type.
+    */
+
     noteText.textContent =
-        note.text;
+        note.text || "";
 
 
     const categoryColor =
@@ -1176,6 +1330,80 @@ function showNote(
         `big-note ${convertColor(
             categoryColor
         )}`;
+
+
+    /*
+       IMAGE NOTE
+    */
+
+    if (
+        note.image_url
+    ) {
+
+        /*
+           First try the local cache.
+        */
+
+        let imageUrl =
+            await getCachedNoteImage(
+                note.image_url
+            );
+
+
+        /*
+           If online and the image
+           isn't cached yet, download it.
+        */
+
+        if (
+            !imageUrl &&
+            navigator.onLine
+        ) {
+
+            await cacheNoteImage(
+                note.image_url
+            );
+
+
+            imageUrl =
+                await getCachedNoteImage(
+                    note.image_url
+                );
+
+        }
+
+
+        if (imageUrl) {
+
+            noteText.innerHTML =
+                "";
+
+
+            const image =
+                document.createElement(
+                    "img"
+                );
+
+
+            image.src =
+                imageUrl;
+
+
+            image.className =
+                "note-image";
+
+
+            image.alt =
+                "Post-it image";
+
+
+            noteText.appendChild(
+                image
+            );
+
+        }
+
+    }
 
 
     modal.classList.add(

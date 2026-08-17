@@ -1842,3 +1842,15 @@ footer {
     right: 10px;
     z-index: 1000;
 }
+
+/* =========================
+   NOTE IMAGE
+========================= */
+
+.note-image {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    object-fit: contain;
+}
