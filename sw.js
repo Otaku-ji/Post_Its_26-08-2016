@@ -1,4 +1,4 @@
-const CACHE_NAME = "postit-game-v2";
+const CACHE_NAME = "postit-game-v4";
 
 
 const APP_FILES = [
@@ -11,7 +11,10 @@ const APP_FILES = [
     "./pin.html",
     "./pin.js",
     "./setup-pin.html",
-    "./setup-pin.js"
+    "./setup-pin.js",
+    "./manifest.json",
+    "./icons/icon-192.png",
+    "./icons/icon-512.png"
 ];
 
 
