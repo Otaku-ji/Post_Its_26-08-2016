@@ -1910,8 +1910,8 @@ h1 {
     border: none;
     border-radius: 50%;
 
-    background: #29231c;
-    color: white;
+    background: white;
+    color: #29231c;
 
     font-size: 16px;
     font-weight: 800;
@@ -2016,6 +2016,12 @@ h1 {
     width: 55px;
     height: 55px;
 
+    border: 1px solid #ddd5c8;
+    border-radius: 50%;
+
+    background: white;
+    color: #29231c;
+
     padding: 0;
 }
 
@@ -2023,6 +2029,12 @@ h1 {
 
     #ogButton {
         bottom: 70px !important;
+    }
+
+    html,
+    body {
+        height: 100%;
+        overflow: hidden;
     }
 
 }
@@ -2045,7 +2057,7 @@ h1 {
 
     #ogButton {
         bottom: calc(
-            70px + env(safe-area-inset-bottom)
+            90px + env(safe-area-inset-bottom)
         ) !important;
     }
 
