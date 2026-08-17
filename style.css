@@ -1600,14 +1600,29 @@ h1 {
     #jarSection {
 
         min-height:
-            500px;
+            0;
+
+        padding:
+            10px
+            0;
+
     }
 
 
     .jar {
 
+        width:
+            min(
+                300px,
+                75vw
+            );
+
         height:
-            390px;
+            min(
+                330px,
+                52vh
+            );
+
     }
 
 
