@@ -1692,20 +1692,26 @@ function isPinSessionActive() {
     }
 
 
-    return (
-        Date.now() - lastActivity <
-        PIN_TIMEOUT
+    const elapsed =
+        Date.now() - lastActivity;
+
+
+    console.log(
+        "PIN SESSION:",
+        {
+            lastActivity,
+            elapsed,
+            timeout: PIN_TIMEOUT,
+            active:
+                elapsed < PIN_TIMEOUT
+        }
     );
 
-}
 
-
-function startPinSession() {
-
-    updatePinActivity();
+    return elapsed <
+        PIN_TIMEOUT;
 
 }
-
 
 /* =========================
    START
@@ -1758,21 +1764,5 @@ async function startApp() {
         loadGame();
 
     }
-
-    document.addEventListener(
-        "click",
-        updatePinActivity
-    );
-
-    document.addEventListener(
-        "touchstart",
-        updatePinActivity
-    );
-
-    document.addEventListener(
-        "keydown",
-        updatePinActivity
-    );
-
 
 startApp();
