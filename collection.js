@@ -389,12 +389,19 @@ function loadLocalCollection() {
 
 
     collectedNotes =
-        allNotes.filter(
-            note =>
-                collectedIds.includes(
-                    note.id
-                )
-        );
+        collectedIds
+            .slice()
+            .reverse()
+            .map(
+                noteId =>
+                    allNotes.find(
+                        note =>
+                            note.id === noteId
+                    )
+            )
+            .filter(
+                Boolean
+            );
 
 
     return (
@@ -531,7 +538,12 @@ async function syncFromSupabase() {
             "user_id",
             currentUser.id
         )
-        .order("collected_at");
+        .order(
+            "collected_at",
+            {
+                ascending: false
+            }
+        );
 
     if (collectionsError) {
 
@@ -581,13 +593,26 @@ async function syncFromSupabase() {
         );
 
 
+    /*
+    Keep the same order as the
+    collections table.
+
+    collections is ordered by
+    collected_at, newest first.
+    */
+
     collectedNotes =
-        allNotes.filter(
-            note =>
-                collectedIds.includes(
-                    note.id
-                )
-        );
+        collectedIds
+            .map(
+                noteId =>
+                    allNotes.find(
+                        note =>
+                            note.id === noteId
+                    )
+            )
+            .filter(
+                Boolean
+            );
 
 
     /* =========================
