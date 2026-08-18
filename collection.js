@@ -1009,7 +1009,7 @@ function renderCollection() {
 
             } else {
 
-                message.textContent =
+                message.innerHTML =
                     note.text || "";
 
             }
@@ -1078,7 +1078,7 @@ async function showNote(
         note.category;
 
 
-    noteText.textContent =
+    noteText.innerHTML =
         note.text || "";
 
 

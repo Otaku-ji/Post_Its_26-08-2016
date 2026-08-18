@@ -978,10 +978,10 @@ async function loadGame() {
 
         updateInterface();
 
-        statusElement.textContent =
-            availableNotes.length === 0
-                ? "You've collected every Post-it!"
-                : "Tap the jar to draw a Post-it.";
+statusElement.innerHTML =
+    availableNotes.length === 0
+        ? `You've collected every Post-it! <img src="./icons/your-hearts-draw-post-it.png" class="status-emoji" alt=""> `
+        : "Tap the jar to draw a Post-it.";
 
     }
 
@@ -1174,8 +1174,8 @@ async function syncFromSupabase() {
         availableNotes.length === 0
     ) {
 
-        statusElement.textContent =
-            "You've collected every Post-it!";
+        statusElement.innerHTML =
+        `<You've collected every Post-it! img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
 
     } else {
 
@@ -1551,7 +1551,7 @@ async function showNote(
        according to the note type.
     */
 
-    noteText.textContent =
+    noteText.innerHTML =
         note.text || "";
 
 
@@ -1670,8 +1670,8 @@ bigNote.addEventListener(
             availableNotes.length === 0
         ) {
 
-            statusElement.textContent =
-                "You've collected every Post-it!";
+        statusElement.innerHTML =
+        `<You've collected every Post-it! img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
 
         } else {
 
