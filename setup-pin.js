@@ -1,4 +1,4 @@
-```javascript
+
 const SUPABASE_URL =
     "https://vaqmavrjvjktqijlpxst.supabase.co";
 
@@ -580,4 +580,3 @@ async function checkLogin() {
 ========================= */
 
 checkLogin();
-```

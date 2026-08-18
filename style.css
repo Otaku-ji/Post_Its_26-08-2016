@@ -2420,3 +2420,21 @@ h1 {
     }
 
 }
+
+/*PIN not section, focus/tap effect*/
+.pin-keypad button {
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+    user-select: none;
+}
+
+.pin-keypad button:focus,
+.pin-keypad button:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
+.pin-keypad button:active {
+    outline: none;
+    box-shadow: none;
+}
