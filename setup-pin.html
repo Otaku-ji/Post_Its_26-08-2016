@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 
@@ -22,57 +23,111 @@
 
 <body>
 
-    <main class="pin-page">
+    <main class="pin-container">
 
-        <div class="pin-box">
+        <div class="pin-card">
 
             <h1>Set Up PIN</h1>
 
-            <p>
+            <p
+                id="setupPinSubtitle"
+                class="pin-subtitle"
+            >
                 Create a 5-digit PIN to protect your game.
             </p>
 
 
-            <form id="setupPinForm">
+            <div
+                id="setupPinDots"
+                class="pin-dots"
+            >
 
-                <input
-                    id="pinInput"
-                    type="password"
-                    inputmode="numeric"
-                    pattern="[0-9]{5}"
-                    maxlength="5"
-                    autocomplete="new-password"
-                    placeholder="•••••"
-                    required
-                >
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+                <span></span>
+
+            </div>
 
 
-                <input
-                    id="confirmPinInput"
-                    type="password"
-                    inputmode="numeric"
-                    pattern="[0-9]{5}"
-                    maxlength="5"
-                    autocomplete="new-password"
-                    placeholder="Confirm PIN"
-                    required
-                >
+            <div
+                id="setupPinStatus"
+                class="pin-message"
+            ></div>
+
+
+            <div class="pin-keypad">
+
+                <button
+                    type="button"
+                    data-digit="1"
+                >1</button>
+
+                <button
+                    type="button"
+                    data-digit="2"
+                >2</button>
+
+                <button
+                    type="button"
+                    data-digit="3"
+                >3</button>
 
 
                 <button
-                    id="setupPinButton"
-                    type="submit"
+                    type="button"
+                    data-digit="4"
+                >4</button>
+
+                <button
+                    type="button"
+                    data-digit="5"
+                >5</button>
+
+                <button
+                    type="button"
+                    data-digit="6"
+                >6</button>
+
+
+                <button
+                    type="button"
+                    data-digit="7"
+                >7</button>
+
+                <button
+                    type="button"
+                    data-digit="8"
+                >8</button>
+
+                <button
+                    type="button"
+                    data-digit="9"
+                >9</button>
+
+
+                <button
+                    type="button"
+                    class="empty-button"
+                    disabled
+                ></button>
+
+
+                <button
+                    type="button"
+                    data-digit="0"
+                >0</button>
+
+
+                <button
+                    type="button"
+                    id="setupDeleteButton"
                 >
-                    Create PIN
+                    ←
                 </button>
 
-            </form>
-
-
-            <p
-                id="setupPinStatus"
-                class="pin-status"
-            ></p>
+            </div>
 
         </div>
 
@@ -83,10 +138,12 @@
 
     <script src="setup-pin.js"></script>
 
-<footer class="copyright">
-    © 26-08-2016 Jar, made by Lili and digitized by Jia. All rights reserved.
-</footer>
+
+    <footer class="copyright">
+        © 26-08-2016 Jar, made by Lili and digitized by Jia. All rights reserved.
+    </footer>
 
 </body>
 
 </html>
+```

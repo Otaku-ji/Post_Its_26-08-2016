@@ -1767,115 +1767,6 @@ h1 {
 }
 
 /* =========================
-   PIN PAGE
-========================= */
-
-.pin-page {
-    min-height: 100vh;
-
-    display: flex;
-
-    align-items: center;
-
-    justify-content: center;
-
-    padding: 20px;
-
-    box-sizing: border-box;
-}
-
-
-.pin-box {
-    width: min(
-        360px,
-        100%
-    );
-
-    padding: 35px 30px;
-
-    text-align: center;
-
-    background: #ffffff;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 10px 30px
-        rgba(
-            0,
-            0,
-            0,
-            0.12
-        );
-}
-
-
-.pin-box h1 {
-    margin-top: 0;
-
-    margin-bottom: 10px;
-}
-
-
-.pin-box p {
-    margin-bottom: 25px;
-}
-
-
-#pinInput {
-    width: 100%;
-
-    box-sizing: border-box;
-
-    padding: 14px;
-
-    font-size: 28px;
-
-    text-align: center;
-
-    letter-spacing: 10px;
-
-    border: 2px solid #cccccc;
-
-    border-radius: 10px;
-
-    outline: none;
-}
-
-
-#pinInput:focus {
-    border-color: #888888;
-}
-
-
-#pinButton {
-    width: 100%;
-
-    margin-top: 20px;
-
-    padding: 14px;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    border: none;
-
-    border-radius: 10px;
-
-    cursor: pointer;
-}
-
-
-.pin-status {
-    min-height: 24px;
-
-    margin-top: 15px;
-
-    font-weight: bold;
-}
-
-/* =========================
    PIN DOTS
 ========================= */
 
@@ -2263,6 +2154,269 @@ h1 {
 
         padding-bottom: 100px;
 
+    }
+
+}
+
+/* =========================
+   PHONE STYLE PIN KEYPAD
+========================= */
+
+.pin-container {
+
+    min-height:
+        100vh;
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    padding:
+        20px;
+}
+
+
+.pin-card {
+
+    width:
+        min(
+            380px,
+            100%
+        );
+
+    text-align:
+        center;
+}
+
+
+.pin-card h1 {
+
+    margin:
+        0
+        0
+        10px;
+
+    font-size:
+        32px;
+}
+
+
+.pin-subtitle {
+
+    margin:
+        0;
+
+    opacity:
+        .7;
+
+    font-size:
+        16px;
+}
+
+
+/* =========================
+   PIN MESSAGE
+========================= */
+
+.pin-message {
+
+    min-height:
+        24px;
+
+    margin:
+        18px
+        0
+        10px;
+
+    font-weight:
+        600;
+}
+
+
+/* =========================
+   PHONE KEYPAD
+========================= */
+
+.pin-keypad {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap:
+        14px;
+
+    width:
+        100%;
+
+    margin-top:
+        20px;
+}
+
+
+.pin-keypad button {
+
+    aspect-ratio:
+        1;
+
+    border:
+        none;
+
+    border-radius:
+        50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .85
+        );
+
+    color:
+        #29231c;
+
+    font-size:
+        28px;
+
+    font-weight:
+        500;
+
+    cursor:
+        pointer;
+
+    box-shadow:
+        0
+        3px
+        10px
+        rgba(
+            0,
+            0,
+            0,
+            .10
+        );
+
+    transition:
+        transform
+        .1s
+        ease,
+        background
+        .1s
+        ease;
+}
+
+
+.pin-keypad button:hover {
+
+    transform:
+        scale(
+            1.05
+        );
+}
+
+
+.pin-keypad button:active {
+
+    transform:
+        scale(
+            .92
+        );
+
+    background:
+        #ddd5c8;
+}
+
+
+.pin-keypad button:disabled {
+
+    cursor:
+        default;
+
+    opacity:
+        .45;
+}
+
+
+/* =========================
+   EMPTY KEYPAD SPACE
+========================= */
+
+.pin-keypad .empty-button {
+
+    visibility:
+        hidden;
+
+    pointer-events:
+        none;
+}
+
+
+/* =========================
+   DELETE BUTTON
+========================= */
+
+#deleteButton,
+#setupDeleteButton {
+
+    background:
+        transparent;
+
+    box-shadow:
+        none;
+
+    font-size:
+        30px;
+
+    font-weight:
+        400;
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (
+    max-width:
+    600px
+) {
+
+    .pin-container {
+
+        padding:
+            20px
+            35px;
+    }
+
+
+    .pin-card {
+
+        width:
+            100%;
+    }
+
+
+    .pin-keypad {
+
+        gap:
+            16px;
+    }
+
+
+    .pin-keypad button {
+
+        font-size:
+            30px;
     }
 
 }

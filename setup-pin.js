@@ -1,5 +1,7 @@
+```javascript
 const SUPABASE_URL =
     "https://vaqmavrjvjktqijlpxst.supabase.co";
+
 
 const SUPABASE_KEY =
     "sb_publishable_1VBFWiNkHPz5XmLHP_v8KA_iJHKwrCg";
@@ -17,28 +19,30 @@ const db =
 
 
 /* =========================
+   PIN STATE
+========================= */
+
+let currentPin =
+    "";
+
+
+let firstPin =
+    "";
+
+
+let confirmingPin =
+    false;
+
+
+/* =========================
    ELEMENTS
 ========================= */
 
-const setupPinForm =
-    document.getElementById(
-        "setupPinForm"
+const setupPinDots =
+    document.querySelectorAll(
+        "#setupPinDots span"
     );
 
-const pinInput =
-    document.getElementById(
-        "pinInput"
-    );
-
-const confirmPinInput =
-    document.getElementById(
-        "confirmPinInput"
-    );
-
-const setupPinButton =
-    document.getElementById(
-        "setupPinButton"
-    );
 
 const setupPinStatus =
     document.getElementById(
@@ -46,74 +50,58 @@ const setupPinStatus =
     );
 
 
-/* =========================
-   ONLY ALLOW NUMBERS
-========================= */
-
-pinInput.addEventListener(
-    "input",
-    () => {
-
-        pinInput.value =
-            pinInput.value.replace(
-                /\D/g,
-                ""
-            );
-
-    }
-);
+const setupPinSubtitle =
+    document.getElementById(
+        "setupPinSubtitle"
+    );
 
 
-confirmPinInput.addEventListener(
-    "input",
-    () => {
+const setupDeleteButton =
+    document.getElementById(
+        "setupDeleteButton"
+    );
 
-        confirmPinInput.value =
-            confirmPinInput.value.replace(
-                /\D/g,
-                ""
-            );
 
-    }
-);
+const digitButtons =
+    document.querySelectorAll(
+        "[data-digit]"
+    );
 
 
 /* =========================
-   CHECK LOGIN
+   MESSAGE
 ========================= */
 
-async function checkLogin() {
+function showMessage(
+    message
+) {
 
-    const {
-        data,
-        error
-    } = await db.auth.getSession();
+    setupPinStatus.textContent =
+        message;
 
-
-    if (error) {
-
-        console.error(
-            "SESSION ERROR:",
-            error
-        );
-
-    }
+}
 
 
-    if (
-        !data ||
-        !data.session
-    ) {
+/* =========================
+   UPDATE DOTS
+========================= */
 
-        window.location.href =
-            "login.html";
+function updateDots() {
 
-        return false;
+    setupPinDots.forEach(
+        (
+            dot,
+            index
+        ) => {
 
-    }
+            dot.classList.toggle(
+                "filled",
+                index <
+                    currentPin.length
+            );
 
-
-    return true;
+        }
+    );
 
 }
 
@@ -164,60 +152,174 @@ async function hashPin(
 
 
 /* =========================
+   ADD DIGIT
+========================= */
+
+function addDigit(
+    digit
+) {
+
+    if (
+        currentPin.length >= 5
+    ) {
+
+        return;
+
+    }
+
+
+    currentPin +=
+        digit;
+
+
+    updateDots();
+
+
+    if (
+        currentPin.length === 5
+    ) {
+
+        setTimeout(
+            processPin,
+            150
+        );
+
+    }
+
+}
+
+
+/* =========================
+   DELETE DIGIT
+========================= */
+
+function deleteDigit() {
+
+    if (
+        currentPin.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    currentPin =
+        currentPin.slice(
+            0,
+            -1
+        );
+
+
+    updateDots();
+
+    showMessage("");
+
+}
+
+
+/* =========================
+   PROCESS PIN
+========================= */
+
+function processPin() {
+
+    /*
+       FIRST ENTRY
+    */
+
+    if (
+        !confirmingPin
+    ) {
+
+        firstPin =
+            currentPin;
+
+
+        currentPin =
+            "";
+
+
+        confirmingPin =
+            true;
+
+
+        updateDots();
+
+
+        setupPinSubtitle.textContent =
+            "Enter your PIN again to confirm.";
+
+
+        showMessage(
+            "Please confirm your PIN."
+        );
+
+
+        return;
+
+    }
+
+
+    /*
+       CONFIRMATION
+    */
+
+    if (
+        currentPin !==
+        firstPin
+    ) {
+
+        currentPin =
+            "";
+
+
+        firstPin =
+            "";
+
+
+        confirmingPin =
+            false;
+
+
+        updateDots();
+
+
+        setupPinSubtitle.textContent =
+            "Create a 5-digit PIN to protect your game.";
+
+
+        showMessage(
+            "The PINs do not match. Please try again."
+        );
+
+
+        return;
+
+    }
+
+
+    createPin(
+        currentPin
+    );
+
+}
+
+
+/* =========================
    CREATE PIN
 ========================= */
 
-async function createPin() {
+async function createPin(
+    pin
+) {
 
-    const pin =
-        pinInput.value;
-
-    const confirmPin =
-        confirmPinInput.value;
+    disableKeypad();
 
 
-    /* =========================
-       VALIDATE PIN
-    ========================= */
-
-    if (
-        !/^\d{5}$/.test(
-            pin
-        )
-    ) {
-
-        setupPinStatus.textContent =
-            "PIN must contain exactly 5 digits.";
-
-        pinInput.focus();
-
-        return;
-
-    }
-
-
-    if (
-        pin !== confirmPin
-    ) {
-
-        setupPinStatus.textContent =
-            "The PINs do not match.";
-
-        confirmPinInput.value = "";
-
-        confirmPinInput.focus();
-
-        return;
-
-    }
-
-
-    setupPinButton.disabled =
-        true;
-
-
-    setupPinStatus.textContent =
-        "Creating PIN...";
+    showMessage(
+        "Creating PIN..."
+    );
 
 
     try {
@@ -229,7 +331,8 @@ async function createPin() {
         const {
             data,
             error
-        } = await db.auth.getSession();
+        } =
+            await db.auth.getSession();
 
 
         if (
@@ -264,7 +367,12 @@ async function createPin() {
            SEND TO EDGE FUNCTION
         ========================= */
 
-        const response =
+        const {
+            data:
+                result,
+            error:
+                createError
+        } =
             await db.functions.invoke(
                 "pin",
                 {
@@ -283,16 +391,12 @@ async function createPin() {
 
 
         if (
-            response.error
+            createError
         ) {
 
-            throw response.error;
+            throw createError;
 
         }
-
-
-        const result =
-            response.data;
 
 
         /* =========================
@@ -304,14 +408,10 @@ async function createPin() {
             result.success
         ) {
 
-            setupPinStatus.textContent =
-                "PIN created successfully!";
+            showMessage(
+                "PIN created successfully!"
+            );
 
-
-            /*
-               Give the user a moment
-               to see the message.
-            */
 
             await new Promise(
                 resolve =>
@@ -322,10 +422,6 @@ async function createPin() {
             );
 
 
-            /*
-               Go to the PIN screen.
-            */
-
             window.location.href =
                 "pin.html";
 
@@ -335,7 +431,7 @@ async function createPin() {
 
 
         /* =========================
-           FUNCTION ERROR
+           ERROR RESPONSE
         ========================= */
 
         console.error(
@@ -344,16 +440,18 @@ async function createPin() {
         );
 
 
-        setupPinStatus.textContent =
+        showMessage(
             result?.error ||
-            "Could not create PIN.";
+            "Could not create PIN."
+        );
 
 
-        setupPinButton.disabled =
-            false;
+        enableKeypad();
 
 
-    } catch (error) {
+    } catch (
+        error
+    ) {
 
         console.error(
             "PIN CREATION ERROR:",
@@ -361,12 +459,12 @@ async function createPin() {
         );
 
 
-        setupPinStatus.textContent =
-            "Could not create PIN. Please try again.";
+        showMessage(
+            "Could not create PIN. Please try again."
+        );
 
 
-        setupPinButton.disabled =
-            false;
+        enableKeypad();
 
     }
 
@@ -374,19 +472,107 @@ async function createPin() {
 
 
 /* =========================
-   FORM
+   DISABLE KEYPAD
 ========================= */
 
-setupPinForm.addEventListener(
-    "submit",
-    event => {
+function disableKeypad() {
 
-        event.preventDefault();
+    digitButtons.forEach(
+        button => {
 
-        createPin();
+            button.disabled =
+                true;
+
+        }
+    );
+
+
+    setupDeleteButton.disabled =
+        true;
+
+}
+
+
+/* =========================
+   ENABLE KEYPAD
+========================= */
+
+function enableKeypad() {
+
+    digitButtons.forEach(
+        button => {
+
+            button.disabled =
+                false;
+
+        }
+    );
+
+
+    setupDeleteButton.disabled =
+        false;
+
+}
+
+
+/* =========================
+   BUTTON EVENTS
+========================= */
+
+digitButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                addDigit(
+                    button.dataset.digit
+                );
+
+            }
+        );
 
     }
 );
+
+
+setupDeleteButton.addEventListener(
+    "click",
+    deleteDigit
+);
+
+
+/* =========================
+   CHECK LOGIN
+========================= */
+
+async function checkLogin() {
+
+    const {
+        data,
+        error
+    } =
+        await db.auth.getSession();
+
+
+    if (
+        error ||
+        !data ||
+        !data.session
+    ) {
+
+        window.location.href =
+            "login.html";
+
+        return false;
+
+    }
+
+
+    return true;
+
+}
 
 
 /* =========================
@@ -394,3 +580,4 @@ setupPinForm.addEventListener(
 ========================= */
 
 checkLogin();
+```
