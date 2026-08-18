@@ -2438,3 +2438,20 @@ h1 {
     outline: none;
     box-shadow: none;
 }
+
+.stat-emoji {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+}
+
+.title-emoji {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+}
