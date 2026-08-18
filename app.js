@@ -1742,81 +1742,155 @@ function renderJar() {
     }
 
 
-    const amount =
+    const MAX_NOTES =
         Math.min(
             availableNotes.length,
             70
         );
 
 
-    for (
-        let i = 0;
-        i < amount;
-        i++
+    /*
+       Make sure every category that still
+       has notes is represented at least once.
+    */
+
+    const notesByCategory = {};
+
+
+    availableNotes.forEach(
+        note => {
+
+            if (
+                !notesByCategory[note.category]
+            ) {
+
+                notesByCategory[note.category] =
+                    [];
+
+            }
+
+
+            notesByCategory[note.category].push(
+                note
+            );
+
+        }
+    );
+
+
+    /*
+       Pick one note from every category.
+    */
+
+    let previewNotes = [];
+
+
+    Object.values(
+        notesByCategory
+    ).forEach(
+        categoryNotes => {
+
+            const randomIndex =
+                Math.floor(
+                    Math.random() *
+                    categoryNotes.length
+                );
+
+
+            previewNotes.push(
+                categoryNotes[randomIndex]
+            );
+
+        }
+    );
+
+
+    /*
+       Fill the remaining jar preview
+       with random available notes.
+    */
+
+    while (
+        previewNotes.length <
+        MAX_NOTES
     ) {
 
-        const note =
-            document.createElement(
-                "div"
-            );
-
-
-        const source =
-            availableNotes[
-                i %
+        const randomIndex =
+            Math.floor(
+                Math.random() *
                 availableNotes.length
-            ];
-
-
-        const categoryColor =
-            getCategoryColor(
-                source.category
             );
 
 
-        note.className =
-            "mini-note " +
-            convertColor(
-                categoryColor
-            );
-
-
-        const left =
-            random(
-                2,
-                92
-            );
-
-
-        const top =
-            random(
-                2,
-                92
-            );
-
-
-        note.style.left =
-            `${left}%`;
-
-
-        note.style.top =
-            `${top}%`;
-
-
-        note.style.setProperty(
-            "--rotation",
-            `${random(-20,20)}deg`
-        );
-
-
-        jarNotesElement.appendChild(
-            note
+        previewNotes.push(
+            availableNotes[randomIndex]
         );
 
     }
 
-}
 
+    /*
+       Create the mini Post-its.
+    */
+
+    previewNotes.forEach(
+        source => {
+
+            const note =
+                document.createElement(
+                    "div"
+                );
+
+
+            const categoryColor =
+                getCategoryColor(
+                    source.category
+                );
+
+
+            note.className =
+                "mini-note " +
+                convertColor(
+                    categoryColor
+                );
+
+
+            const left =
+                random(
+                    2,
+                    92
+                );
+
+
+            const top =
+                random(
+                    2,
+                    92
+                );
+
+
+            note.style.left =
+                `${left}%`;
+
+
+            note.style.top =
+                `${top}%`;
+
+
+            note.style.setProperty(
+                "--rotation",
+                `${random(-20,20)}deg`
+            );
+
+
+            jarNotesElement.appendChild(
+                note
+            );
+
+        }
+    );
+
+}
 
 /* =========================
    COLLECTION BUTTON
