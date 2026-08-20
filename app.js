@@ -520,6 +520,11 @@ const ogButton =
         "ogButton"
     );
 
+const jar2Button =
+    document.getElementById(
+        "jar2Button"
+    );
+
 const ogOverlay =
     document.getElementById(
         "ogOverlay"
@@ -719,6 +724,20 @@ if (ogButton) {
     ogButton.addEventListener(
         "click",
         showOGJar
+    );
+
+}
+
+if (jar2Button) {
+
+    jar2Button.addEventListener(
+        "click",
+        () => {
+
+            window.location.href =
+                "jar2.html";
+
+        }
     );
 
 }

@@ -1821,7 +1821,8 @@ h1 {
    OG BUTTON
 ========================= */
 
-#ogButton {
+#ogButton,
+#jar2Button {
     position: fixed;
 
     left: 15px;
@@ -1858,7 +1859,8 @@ h1 {
         opacity .15s ease;
 }
 
-#ogButton img {
+#ogButton img,
+#jar2Button img {
     width: 55px;
     height: 55px;
 
@@ -1869,11 +1871,13 @@ h1 {
     pointer-events: none;
 }
 
-#ogButton:hover {
+#ogButton:hover,
+#jar2Button:hover {
     transform: translateY(-2px);
 }
 
-#ogButton:active {
+#ogButton:active,
+#jar2Button:active {
     transform: scale(.95);
 }
 
@@ -1950,9 +1954,30 @@ h1 {
     padding: 0;
 }
 
+#jar2Button {
+    position: fixed !important;
+
+    left: auto !important;
+    right: 15px !important;
+
+    bottom: 45px !important;
+
+    width: 55px;
+    height: 55px;
+
+    border: 1px solid #ddd5c8;
+    border-radius: 50%;
+
+    background: white;
+    color: #29231c;
+
+    padding: 0;
+}
+
 @media (max-width: 600px) {
 
-    #ogButton {
+    #ogButton,
+    #jar2Button {
         bottom: 70px !important;
     }
 
@@ -1964,7 +1989,8 @@ h1 {
 
 @media (display-mode: standalone) {
 
-    #ogButton {
+    #ogButton,
+    #jar2Button {
         bottom: calc(
             90px + env(safe-area-inset-bottom)
         ) !important;
