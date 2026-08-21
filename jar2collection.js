@@ -814,7 +814,7 @@ async function createCollectionNote(
             "collection-note-text";
 
 
-        text.textContent =
+        text.innerHTML =
             note.text;
 
 
@@ -1004,7 +1004,7 @@ async function showNote(
             );
 
 
-        text.textContent =
+        text.innerHTML =
             note.text;
 
 

@@ -243,7 +243,7 @@ let availableDailyDraws = 0;
 
 let currentUser = null;
 
-const JAR2_START_DATE = "2025-01-19";
+const JAR2_START_DATE = "2026-08-19";
 
 
 /* =========================
@@ -1960,7 +1960,7 @@ async function showNote(note) {
             );
 
 
-        textElement.textContent =
+        textElement.innerHTML =
             note.text;
 
 
