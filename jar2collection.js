@@ -30,7 +30,9 @@ let activeCategory = "All";
 
 let searchTerm = "";
 
-const IMAGE_CACHE_NAME = "postit-image-cache-v1";
+const IMAGE_CACHE_NAME =
+    "postit-image-cache-v1";
+
 
 /* =========================
    IMAGE CACHE
@@ -169,7 +171,7 @@ async function getCachedNoteImage(
 
         console.error(
             "JAR 2 COLLECTION CACHED IMAGE ERROR:",
-        error
+            error
         );
 
         return null;
@@ -177,6 +179,7 @@ async function getCachedNoteImage(
     }
 
 }
+
 
 /* =========================
    ELEMENTS
@@ -297,23 +300,24 @@ async function loadCollection() {
            Load all Jar 2 notes.
         */
 
-       const {
-        data: notes,
-        error: notesError
-    } = await db
-        .from("jar2_notes")
-        .select(`
-            *,
-            jar2_categories (
-                name,
-                color
+        const {
+            data: notes,
+            error: notesError
+        } = await db
+            .from("jar2_notes")
+            .select(`
+                *,
+                jar2_categories (
+                    name,
+                    color
+                )
+            `)
+            .eq(
+                "active",
+                true
             )
-        `)
-        .eq(
-            "active",
-            true
-        )
-        .order("id");
+            .order("id");
+
 
         if (notesError) {
 
@@ -327,6 +331,7 @@ async function loadCollection() {
                 note => {
 
                     return {
+
                         ...note,
 
                         category:
@@ -336,10 +341,12 @@ async function loadCollection() {
                         color:
                             note.jar2_categories?.color ||
                             "white"
+
                     };
 
                 }
-        );
+            );
+
 
         /*
            Load only this user's
@@ -415,7 +422,6 @@ async function loadCollection() {
                 );
 
 
-
         renderCategoryFilters();
 
         renderCollection();
@@ -431,6 +437,7 @@ async function loadCollection() {
 
         emptyMessage.textContent =
             "Could not load your collection.";
+
 
         emptyMessage.style.display =
             "block";
@@ -454,7 +461,7 @@ function renderCategoryFilters() {
        Get unique categories
        from ALL Jar 2 notes.
 
-       This means the category buttonsQ
+       This means the category buttons
        remain visible even when the
        collection is empty.
     */
@@ -748,14 +755,17 @@ async function createCollectionNote(
         convertColor(
             note.color
         );
-    
+
+
     const rotation =
         Math.random() * 6 - 3;
+
 
     sticky.style.setProperty(
         "--rotation",
         `${rotation}deg`
     );
+
 
     /*
        Category title
@@ -783,111 +793,129 @@ async function createCollectionNote(
 
 
     /*
-       Content
+       TEXT
+
+       Text is always shown,
+       even when the note also
+       contains an image.
     */
 
     if (
-    note.image_url
-) {
-
-    /*
-       First try local cache.
-    */
-
-    let imageUrl =
-        await getCachedNoteImage(
-            note.image_url
-        );
-
-
-    /*
-       If not cached, download it
-       while online.
-    */
-
-    if (
-        !imageUrl &&
-        navigator.onLine
+        note.text
     ) {
 
-        await cacheNoteImage(
-            note.image_url
+        const text =
+            document.createElement(
+                "div"
+            );
+
+
+        text.className =
+            "collection-note-text";
+
+
+        text.textContent =
+            note.text;
+
+
+        sticky.appendChild(
+            text
         );
 
+    }
 
-        imageUrl =
+
+    /*
+       IMAGE
+
+       Image is shown underneath
+       the text when available.
+    */
+
+    if (
+        note.image_url
+    ) {
+
+        /*
+           First try local cache.
+        */
+
+        let imageUrl =
             await getCachedNoteImage(
                 note.image_url
             );
 
-    }
 
+        /*
+           If not cached, download it
+           while online.
+        */
 
-    if (imageUrl) {
+        if (
+            !imageUrl &&
+            navigator.onLine
+        ) {
 
-        const image =
-            document.createElement(
-                "img"
+            await cacheNoteImage(
+                note.image_url
             );
 
 
-        image.src =
-            imageUrl;
+            imageUrl =
+                await getCachedNoteImage(
+                    note.image_url
+                );
+
+        }
 
 
-        image.className =
-            "collection-note-image";
+        if (imageUrl) {
+
+            const image =
+                document.createElement(
+                    "img"
+                );
 
 
-        image.alt =
-            "Post-it image";
+            image.src =
+                imageUrl;
 
 
-        sticky.appendChild(
-            image
-        );
+            image.className =
+                "collection-note-image";
 
-    } else if (!navigator.onLine) {
 
-        const text =
-            document.createElement(
-                "div"
+            image.alt =
+                "Post-it image";
+
+
+            sticky.appendChild(
+                image
             );
 
+        } else if (
+            !navigator.onLine
+        ) {
 
-        text.className =
-            "collection-note-text";
+            const imageMessage =
+                document.createElement(
+                    "div"
+                );
 
 
-        text.textContent =
-            "Image unavailable offline.";
+            imageMessage.className =
+                "collection-note-text";
 
 
-        sticky.appendChild(
-            text
-        );
+            imageMessage.textContent =
+                "Image unavailable offline.";
 
-    }
 
-    } else {
-
-        const text =
-            document.createElement(
-                "div"
+            sticky.appendChild(
+                imageMessage
             );
 
-
-        text.className =
-            "collection-note-text";
-
-
-        text.textContent =
-            note.text || "";
-
-
-        sticky.appendChild(
-            text
-        );
+        }
 
     }
 
@@ -958,77 +986,121 @@ async function showNote(
         "";
 
 
-    if (
-    note.image_url
-) {
-
     /*
-       First try local cache.
-    */
+       TEXT
 
-    let imageUrl =
-        await getCachedNoteImage(
-            note.image_url
-        );
-
-
-    /*
-       Download if necessary.
+       Text is always shown,
+       even when the note also
+       contains an image.
     */
 
     if (
-        !imageUrl &&
-        navigator.onLine
+        note.text
     ) {
 
-        await cacheNoteImage(
-            note.image_url
+        const text =
+            document.createElement(
+                "div"
+            );
+
+
+        text.textContent =
+            note.text;
+
+
+        noteText.appendChild(
+            text
         );
 
+    }
 
-        imageUrl =
+
+    /*
+       IMAGE
+
+       Image is shown underneath
+       the text.
+    */
+
+    if (
+        note.image_url
+    ) {
+
+        /*
+           First try local cache.
+        */
+
+        let imageUrl =
             await getCachedNoteImage(
                 note.image_url
             );
 
-    }
 
+        /*
+           Download if necessary.
+        */
 
-    if (imageUrl) {
+        if (
+            !imageUrl &&
+            navigator.onLine
+        ) {
 
-        const image =
-            document.createElement(
-                "img"
+            await cacheNoteImage(
+                note.image_url
             );
 
 
-        image.src =
-            imageUrl;
+            imageUrl =
+                await getCachedNoteImage(
+                    note.image_url
+                );
+
+        }
 
 
-        image.className =
-            "note-image";
+        if (imageUrl) {
+
+            const image =
+                document.createElement(
+                    "img"
+                );
 
 
-        image.alt =
-            "Post-it image";
+            image.src =
+                imageUrl;
 
 
-        noteText.appendChild(
-            image
-        );
+            image.className =
+                "note-image";
 
-    } else if (!navigator.onLine) {
 
-        noteText.textContent =
-            "Image unavailable offline.";
+            image.alt =
+                "Post-it image";
 
-    }
 
-    } else {
+            noteText.appendChild(
+                image
+            );
 
-        noteText.textContent =
-            note.text || "";
+        } else if (
+            !navigator.onLine
+        ) {
+
+            const imageMessage =
+                document.createElement(
+                    "div"
+                );
+
+
+            imageMessage.textContent =
+                "Image unavailable offline.";
+
+
+            noteText.appendChild(
+                imageMessage
+            );
+
+        }
 
     }
 
@@ -1181,6 +1253,7 @@ function convertColor(
 
 }
 
+
 /* =========================
    PIN SESSION
 ========================= */
@@ -1246,9 +1319,6 @@ document.addEventListener(
     updatePinActivity
 );
 
-/* =========================
-   START
-========================= */
 
 /* =========================
    START
