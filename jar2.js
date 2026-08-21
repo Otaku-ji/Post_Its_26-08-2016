@@ -1054,12 +1054,19 @@ function loadJar2LocalGame() {
 async function syncPendingJar2Changes() {
 
     /*
+       ========================================
        RESET
+       ========================================
     */
 
     if (
         isJar2ResetPending()
     ) {
+
+        console.log(
+            "JAR 2: Pending reset found. Synchronizing..."
+        );
+
 
         const {
             error
@@ -1095,23 +1102,29 @@ async function syncPendingJar2Changes() {
 
 
         /*
-           Any pending draws that existed
-           before the reset are no longer
-           relevant.
+           Any draws that existed before
+           the reset are no longer relevant.
         */
 
         savePendingJar2Collections(
             []
         );
 
+
+        console.log(
+            "JAR 2: Pending reset synchronized."
+        );
+
     }
 
 
     /*
+       ========================================
        PENDING COLLECTIONS
+       ========================================
     */
 
-    const pending =
+    let pending =
         getPendingJar2Collections();
 
 
@@ -1124,37 +1137,96 @@ async function syncPendingJar2Changes() {
     }
 
 
-    for (
-        const item of pending
+    console.log(
+        `JAR 2: Synchronizing ${pending.length} pending draw(s)...`
+    );
+
+
+    /*
+       Process one pending draw at a time.
+    */
+
+    while (
+        pending.length > 0
     ) {
 
-        const {
-            error
-        } = await db
-            .from("jar2_collections")
-            .insert({
-
-                note_id:
-                    item.note_id,
-
-                user_id:
-                    currentUser.id,
-
-                drawn_at:
-                    item.drawn_at
-
-            });
+        const item =
+            pending[0];
 
 
-        /*
-           Stop if an upload fails.
-           Remaining items stay cached.
-        */
+        try {
 
-        if (error) {
+            const {
+                error
+            } = await db
+                .from("jar2_collections")
+                .insert({
+
+                    note_id:
+                        item.note_id,
+
+                    user_id:
+                        currentUser.id,
+
+                    drawn_at:
+                        item.drawn_at
+
+                });
+
+
+            /*
+               Upload failed.
+
+               Keep this item in local storage
+               and stop. It will be retried
+               the next time we reconnect.
+            */
+
+            if (error) {
+
+                console.error(
+                    "PENDING JAR 2 COLLECTION ERROR:",
+                    error
+                );
+
+                throw error;
+
+            }
+
+
+            /*
+               Upload succeeded.
+
+               Remove ONLY this successfully
+               synchronized item from the queue.
+            */
+
+            pending.shift();
+
+
+            savePendingJar2Collections(
+                pending
+            );
+
+
+            console.log(
+                "JAR 2: Pending draw synchronized:",
+                item.note_id
+            );
+
+        } catch (error) {
+
+            /*
+               IMPORTANT:
+
+               The current item remains in
+               local storage because we only
+               remove it after a successful
+               Supabase insert.
+            */
 
             console.error(
-                "PENDING JAR 2 COLLECTION ERROR:",
+                "JAR 2: Pending synchronization stopped.",
                 error
             );
 
@@ -1165,13 +1237,8 @@ async function syncPendingJar2Changes() {
     }
 
 
-    /*
-       All pending draws successfully
-       reached Supabase.
-    */
-
-    savePendingJar2Collections(
-        []
+    console.log(
+        "JAR 2: All pending changes synchronized."
     );
 
 }
@@ -1876,82 +1943,118 @@ async function showNote(note) {
         "";
 
 
-    /*
-       IMAGE NOTE
-    */
-
-if (
-    note.image_url
-) {
-
-    /*
-       First try the local cache.
-    */
-
-    let imageUrl =
-        await getCachedNoteImage(
-            note.image_url
-        );
-
-
-    /*
-       If the image is not cached
-       and we are online, download it.
+        /*
+       NOTE CONTENT
+       
+       Jar 2 notes can contain both
+       text and an image.
     */
 
     if (
-        !imageUrl &&
-        navigator.onLine
+        note.text
     ) {
 
-        await cacheNoteImage(
-            note.image_url
+        const textElement =
+            document.createElement(
+                "div"
+            );
+
+
+        textElement.textContent =
+            note.text;
+
+
+        noteText.appendChild(
+            textElement
         );
 
+    }
 
-        imageUrl =
+
+    /*
+       IMAGE
+    */
+
+    if (
+        note.image_url
+    ) {
+
+        /*
+           First try the local cache.
+        */
+
+        let imageUrl =
             await getCachedNoteImage(
                 note.image_url
             );
 
-    }
 
+        /*
+           If the image is not cached
+           and we are online, download it.
+        */
 
-    if (imageUrl) {
+        if (
+            !imageUrl &&
+            navigator.onLine
+        ) {
 
-        const image =
-            document.createElement(
-                "img"
+            await cacheNoteImage(
+                note.image_url
             );
 
 
-        image.src =
-            imageUrl;
+            imageUrl =
+                await getCachedNoteImage(
+                    note.image_url
+                );
+
+        }
 
 
-        image.className =
-            "note-image";
+        if (imageUrl) {
+
+            const image =
+                document.createElement(
+                    "img"
+                );
 
 
-        image.alt =
-            "Post-it image";
+            image.src =
+                imageUrl;
 
 
-        noteText.appendChild(
-            image
-        );
+            image.className =
+                "note-image";
 
-    } else if (!navigator.onLine) {
 
-        noteText.textContent =
-            "Image unavailable offline.";
+            image.alt =
+                "Post-it image";
 
-    }
 
-} else {
+            noteText.appendChild(
+                image
+            );
 
-        noteText.textContent =
-            note.text || "";
+        } else if (
+            !navigator.onLine
+        ) {
+
+            const imageMessage =
+                document.createElement(
+                    "div"
+                );
+
+
+            imageMessage.textContent =
+                "Image unavailable offline.";
+
+
+            noteText.appendChild(
+                imageMessage
+            );
+
+        }
 
     }
 
@@ -2216,10 +2319,14 @@ if (resetButton) {
             updateInterface();
 
 
-            /*
-               Try to reset Supabase
-               immediately if online.
+           /*
+            Try to reset Supabase
+            immediately if online.
             */
+
+            let resetSynced =
+                false;
+
 
             if (
                 db &&
@@ -2249,12 +2356,16 @@ if (resetButton) {
                     } else {
 
                         /*
-                           Supabase reset succeeded.
+                        Supabase reset succeeded.
                         */
 
                         setJar2ResetPending(
                             false
                         );
+
+
+                        resetSynced =
+                            true;
 
                     }
 
@@ -2278,8 +2389,26 @@ if (resetButton) {
                 "Reset Jar";
 
 
-            statusElement.textContent =
-                "Jar has been reset! Tap the jar to draw a Post-it.";
+            if (
+                resetSynced
+            ) {
+
+                statusElement.textContent =
+                    "Jar has been reset! Tap the jar to draw a Post-it.";
+
+            } else if (
+                navigator.onLine
+            ) {
+
+                statusElement.textContent =
+                    "Jar reset locally. It will synchronize when possible.";
+
+            } else {
+
+                statusElement.textContent =
+                    "Jar reset locally. It will synchronize when you reconnect.";
+
+            }
 
         }
     );
