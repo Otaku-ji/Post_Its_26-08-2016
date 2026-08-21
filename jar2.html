@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>26'08'2016 Jar - Special Jar</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <link
+        rel="manifest"
+        href="manifest.json"
+    >
+
+</head>
+
+
+<body>
+
+<div class="app jar2-page">
+
+    <header>
+
+        <h1>
+            Special Jar
+        </h1>
+
+        <div class="stats">
+
+            <div>
+
+                <img
+                    src="./icons/post-it-remaining.png"
+                    class="stat-emoji"
+                    alt=""
+                >
+
+                <span id="jar2Remaining">
+                    0
+                </span>
+
+                notes available
+
+            </div>
+
+        </div>
+
+    </header>
+
+
+    <!-- SECOND JAR -->
+
+    <section id="jarSection">
+
+        <div
+            id="jar2"
+            class="jar"
+            title="Click the jar to draw a Post-it"
+        >
+
+            <div class="jar-lid">
+
+                <div class="lid-highlight"></div>
+
+            </div>
+
+            <div class="jar-neck"></div>
+
+            <div
+                id="jar2Notes"
+                class="jar-notes"
+            ></div>
+
+            <div class="jar-glass">
+
+                <div class="glass-highlight"></div>
+
+            </div>
+
+            <div
+                class="heart-sticker"
+                aria-hidden="true"
+            >
+                ♥
+            </div>
+
+            <div class="jar-bottom"></div>
+
+        </div>
+
+
+        <p id="jar2Status">
+            Tap the jar to draw a Post-it!
+        </p>
+
+
+        <!-- OG BUTTON -->
+
+        <button
+            id="ogButton"
+            type="button"
+            aria-label="Open original image"
+        >
+            <img
+                src="./icons/OG_icon-128.png"
+                alt="Original"
+            >
+        </button>
+
+
+        <!-- SWITCH JAR BUTTON -->
+
+        <button
+            id="jar2Button"
+            type="button"
+            aria-label="Switch jar"
+        >
+            <img
+                src="./icons/jar2-icon-128.png"
+                alt="Switch Jar"
+            >
+        </button>
+
+        <div id="ogOverlay">
+            <img
+                id="ogImage"
+                src=""
+                alt="Original Post-it Jar"
+            >
+        </div>
+
+    </section>
+
+    <div id="ogOverlay">
+        <img
+            id="ogImage"
+            src=""
+            alt="Original Post-it Jar"
+        >
+    </div>
+
+
+    <!-- COLLECTION / RESET -->
+
+    <section id="collectionLinkSection">
+
+        <button
+            id="jar2CollectionButton"
+            type="button"
+        >
+
+            <span class="button-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M5 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4Z"
+                    />
+
+                    <path
+                        d="M17 6h2a2 2 0 0 1 2 2v12H7"
+                    />
+
+                    <path
+                        d="M8 8h6"
+                    />
+
+                    <path
+                        d="M8 12h6"
+                    />
+
+                </svg>
+
+            </span>
+
+            My Collection
+
+        </button>
+
+
+        <!-- KEEP FOR TESTING -->
+
+        <button
+            id="jar2ResetButton"
+            type="button"
+        >
+
+            <span class="button-icon">
+
+                <svg
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                >
+
+                    <path
+                        d="M4 12a8 8 0 1 0 2.3-5.7"
+                    />
+
+                    <path
+                        d="M4 5v5h5"
+                    />
+
+                </svg>
+
+            </span>
+
+            Reset Jar
+
+        </button>
+
+    </section>
+
+</div>
+
+
+<!-- NOTE MODAL -->
+
+<div
+    id="jar2NoteModal"
+    class="modal"
+>
+
+    <div
+        id="jar2BigNote"
+        class="big-note"
+    >
+
+        <div id="jar2NoteCategory"></div>
+
+        <div id="jar2NoteText"></div>
+
+        <div id="jar2NoteDate"></div>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="jar2.js"></script>
+
+
+<script>
+
+    if ("serviceWorker" in navigator) {
+
+        window.addEventListener(
+            "load",
+            () => {
+
+                navigator.serviceWorker
+                    .register("./sw.js")
+                    .then(
+                        registration => {
+
+                            console.log(
+                                "Service Worker registered:",
+                                registration.scope
+                            );
+
+                        }
+                    )
+                    .catch(
+                        error => {
+
+                            console.error(
+                                "Service Worker registration failed:",
+                                error
+                            );
+
+                        }
+                    );
+
+            }
+        );
+
+    }
+
+</script>
+
+
+<footer class="copyright">
+
+    © 2026 Jar, made by Jia. All rights reserved.
+
+</footer>
+
+
+</body>
+
+</html>
