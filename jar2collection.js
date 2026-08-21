@@ -42,7 +42,7 @@ const collectionGrid =
 
 const categoryFilters =
     document.getElementById(
-        "CategoryButtons"
+        "categoryButtons"
     );
 
 const searchInput =
@@ -597,7 +597,14 @@ function createCollectionNote(
         convertColor(
             note.color
         );
+    
+    const rotation =
+        Math.random() * 6 - 3;
 
+    sticky.style.setProperty(
+        "--rotation",
+        `${rotation}deg`
+    );
 
     /*
        Category title

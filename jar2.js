@@ -24,17 +24,28 @@ let allJar2Notes = [];
 let availableJar2Notes = [];
 let collectedJar2Notes = [];
 let jar2Categories = [];
+let availableDailyDraws = 0;
 
 let currentUser = null;
+
+const JAR2_START_DATE = "2026-08-19";
 
 
 /* =========================
    ELEMENTS
 ========================= */
 
+
+
 const remainingElement =
     document.getElementById(
         "jar2Remaining"
+    );
+
+
+const collectedElement =
+    document.getElementById(
+        "jar2Collected"
     );
 
 const jarElement =
@@ -260,6 +271,98 @@ async function loadCurrentUser() {
 
 }
 
+/* =========================
+   DAILY DRAW SYSTEM
+========================= */
+
+function getTodayDate() {
+
+    const today =
+        new Date();
+
+    today.setHours(
+        0,
+        0,
+        0,
+        0
+    );
+
+    return today;
+
+}
+
+
+function getJar2AvailableDraws(
+    totalCollected
+) {
+
+    const startDate =
+        new Date(
+            JAR2_START_DATE + "T00:00:00"
+        );
+
+    const today =
+        getTodayDate();
+
+
+    /*
+       Jar 2 has not started yet.
+    */
+
+    if (
+        today < startDate
+    ) {
+
+        return 0;
+
+    }
+
+
+    /*
+       Calculate number of
+       calendar days since start.
+       
+       +1 means the start date
+       itself counts as a draw day.
+    */
+
+    const millisecondsPerDay =
+        1000 *
+        60 *
+        60 *
+        24;
+
+
+    const elapsedDays =
+        Math.floor(
+            (
+                today.getTime() -
+                startDate.getTime()
+            ) /
+            millisecondsPerDay
+        );
+
+
+    const earnedDraws =
+        elapsedDays + 1;
+
+
+    /*
+       Every collected Post-it
+       consumes one earned draw.
+    */
+
+    const availableDraws =
+        earnedDraws -
+        totalCollected;
+
+
+    return Math.max(
+        0,
+        availableDraws
+    );
+
+}
 
 /* =========================
    LOAD NOTES
@@ -411,6 +514,11 @@ async function loadJar2() {
 
         updateInterface();
 
+        availableDailyDraws =
+            getJar2AvailableDraws(
+                collectedJar2Notes.length
+            );
+
 
         statusElement.textContent =
             availableJar2Notes.length === 0
@@ -443,6 +551,12 @@ function updateInterface() {
     remainingElement.textContent =
         availableJar2Notes.length;
 
+    if (collectedElement) {
+
+        collectedElement.textContent =
+            collectedJar2Notes.length;
+
+    }
 
     renderJar();
 
@@ -574,7 +688,6 @@ function renderJar() {
 
 }
 
-
 /* =========================
    DRAW NOTE
 ========================= */
@@ -586,7 +699,19 @@ async function drawNote() {
     ) {
 
         statusElement.textContent =
-            "The jar is empty!";
+            "You've collected every Post-it!";
+
+        return;
+
+    }
+
+
+    if (
+        availableDailyDraws <= 0
+    ) {
+
+        statusElement.textContent =
+            "No Post-it available today. Come back tomorrow!";
 
         return;
 
@@ -696,6 +821,9 @@ async function drawNote() {
         randomIndex,
         1
     );
+
+
+    availableDailyDraws--;
 
 
     collectedJar2Notes.push({
@@ -861,11 +989,28 @@ bigNote.addEventListener(
         );
 
 
-        statusElement.textContent =
+        if (
             availableJar2Notes.length === 0
-                ? "You've collected every Post-it!"
-                : "Tap the jar to draw another Post-it.";
+        ) {
 
+            statusElement.textContent =
+                "You've collected every Post-it!";
+
+        } else if (
+            availableDailyDraws === 0
+        ) {
+
+            statusElement.textContent =
+                "No Post-it available today. Come back tomorrow!";
+
+        } else {
+
+            statusElement.textContent =
+                availableDailyDraws === 1
+                    ? "You have 1 Post-it to draw."
+                    : `You have ${availableDailyDraws} Post-its to draw.`;
+
+        }
     }
 );
 
@@ -982,10 +1127,13 @@ if (resetButton) {
                 availableJar2Notes =
                     [...allJar2Notes];
 
-
                 collectedJar2Notes =
                     [];
 
+                availableDailyDraws =
+                    getJar2AvailableDraws(
+                        0
+                    );
 
                 updateInterface();
 

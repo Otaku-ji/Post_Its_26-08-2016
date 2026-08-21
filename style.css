@@ -1237,13 +1237,11 @@ h1 {
 
 
 .collection-note {
-
-    min-height:
-        150px;
-
-    padding:
-        20px;
-
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+    padding: 20px;
+    box-sizing: border-box;
     box-shadow:
         4px
         7px
@@ -1254,22 +1252,15 @@ h1 {
             0,
             .18
         );
-
     transform:
         rotate(
             var(--rotation)
         );
-
-    cursor:
-        pointer;
-
-    transition:
-        .2s;
+    cursor: pointer;
+    transition: .2s;
 }
 
-
 .collection-note:hover {
-
     transform:
         rotate(0)
         translateY(-5px);
@@ -2020,7 +2011,8 @@ h1 {
 }
 
 
-#collectionSearchInput {
+#collectionSearchInput,
+#jar2SearchInput {
 
     width:
         min(
@@ -2067,7 +2059,8 @@ h1 {
 }
 
 
-#collectionSearchInput:focus {
+#collectionSearchInput:focus,
+#jar2SearchInput:focus {
 
     border-color:
         #29231c;
@@ -2085,7 +2078,8 @@ h1 {
 }
 
 
-#collectionSearchInput::placeholder {
+#collectionSearchInput::placeholder,
+#jar2SearchInput::placeholder {
 
     color:
         #888;
@@ -2103,7 +2097,8 @@ h1 {
         padding: 0;
     }
 
-    #collectionSearchInput {
+    #collectionSearchInput,
+    #jar2SearchInput {
         display: block;
         width: 100%;
         max-width: none;
@@ -2525,23 +2520,6 @@ h1 {
     transform: translateY(-2px);
 }
 
-
-.collection-search {
-    display: flex;
-    justify-content: center;
-    margin: 0 auto 15px;
-}
-
-#jar2SearchInput {
-    width: min(90%, 420px);
-    padding: 10px 14px;
-    border: 1px solid #ccc;
-    border-radius: 20px;
-    font: inherit;
-    box-sizing: border-box;
-}
-
-
 #jar2CategoryFilters {
     display: flex;
     flex-wrap: wrap;
@@ -2567,25 +2545,36 @@ h1 {
 }
 
 
+/* =========================
+   JAR 2 COLLECTION GRID
+========================= */
+
 #jar2CollectionGrid {
-    display: grid;
-    grid-template-columns: repeat(
-        auto-fill,
-        minmax(150px, 1fr)
-    );
-    gap: 18px;
-    width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 10px;
-    box-sizing: border-box;
+
+    display:
+        grid;
+
+    grid-template-columns:
+
+        repeat(
+            auto-fill,
+
+            minmax(
+                180px,
+                1fr
+            )
+        );
+
+    gap:
+        20px;
+
 }
 
 
 .collection-note {
     position: relative;
     min-height: 150px;
-    padding: 16px;
+    padding: 20px;
     box-sizing: border-box;
     cursor: pointer;
     transform: rotate(
@@ -2604,17 +2593,43 @@ h1 {
 
 
 .collection-note-title {
-    font-weight: bold;
-    text-decoration: underline;
-    color: #000;
-    margin-bottom: 10px;
+
+    font-size:
+        20px;
+
+    font-weight:
+        800;
+
+    text-decoration:
+        underline;
+
+    text-underline-offset:
+        4px;
+
+    color:
+        #000000;
+
+    opacity:
+        1;
+
+    margin-bottom:
+        30px;
+
 }
 
 
+
 .collection-note-text {
-    color: #000;
-    font-size: 14px;
-    line-height: 1.35;
+
+    font-weight:
+        400;
+
+    line-height:
+        1.4;
+
+    color:
+        #29231c;
+
 }
 
 
