@@ -536,19 +536,33 @@ const ogImage =
     );
 
 
-async function cacheOGJarImage() {
+async function showOGJar() {
+
+    console.log(
+        "OG BUTTON CLICKED"
+    );
+
 
     if (
-        !db ||
-        !navigator.onLine
+        !db
     ) {
 
-        return null;
+        console.error(
+            "Supabase database is not available."
+        );
+
+        return;
 
     }
 
 
     try {
+
+        console.log(
+            "Loading OG image:",
+            OG_JAR_IMAGE
+        );
+
 
         const {
             data,
@@ -563,9 +577,7 @@ async function cacheOGJarImage() {
 
 
         if (
-            error ||
-            !data ||
-            !data.signedUrl
+            error
         ) {
 
             console.error(
@@ -573,153 +585,75 @@ async function cacheOGJarImage() {
                 error
             );
 
-            return null;
+            return;
 
         }
-
-
-        const response =
-            await fetch(
-                data.signedUrl
-            );
 
 
         if (
-            !response.ok
+            !data ||
+            !data.signedUrl
         ) {
 
             console.error(
-                "OG IMAGE DOWNLOAD ERROR:",
-                response.status
+                "No signed URL returned for OG image."
             );
 
-            return null;
+            return;
 
         }
 
 
-        const cache =
-            await caches.open(
-                IMAGE_CACHE_NAME
-            );
-
-
-        await cache.put(
-            OG_JAR_IMAGE,
-            response.clone()
+        console.log(
+            "OG IMAGE URL CREATED"
         );
 
 
-        return true;
+        ogImage.src =
+            data.signedUrl;
+
+
+        ogImage.onload =
+            () => {
+
+                console.log(
+                    "OG IMAGE LOADED SUCCESSFULLY"
+                );
+
+
+                ogOverlay.classList.add(
+                    "visible"
+                );
+
+            };
+
+
+        ogImage.onerror =
+            () => {
+
+                console.error(
+                    "OG IMAGE FAILED TO LOAD:",
+                    data.signedUrl
+                );
+
+            };
+
 
     } catch (error) {
 
         console.error(
-            "OG IMAGE CACHE ERROR:",
+            "OG IMAGE ERROR:",
             error
         );
 
-        return null;
-
     }
 
 }
 
 
-async function getCachedOGJarImage() {
-
-    try {
-
-        const cache =
-            await caches.open(
-                IMAGE_CACHE_NAME
-            );
-
-
-        const response =
-            await cache.match(
-                OG_JAR_IMAGE
-            );
-
-
-        if (!response) {
-
-            return null;
-
-        }
-
-
-        return URL.createObjectURL(
-            await response.blob()
-        );
-
-    } catch (error) {
-
-        console.error(
-            "OG CACHED IMAGE ERROR:",
-            error
-        );
-
-        return null;
-
-    }
-
-}
-
-
-async function showOGJar() {
-
-    let imageUrl =
-        await getCachedOGJarImage();
-
-
-    /*
-       If the image isn't cached,
-       download it from Supabase.
-    */
-
-    if (
-        !imageUrl &&
-        navigator.onLine
-    ) {
-
-        const cached =
-            await cacheOGJarImage();
-
-
-        if (cached) {
-
-            imageUrl =
-                await getCachedOGJarImage();
-
-        }
-
-    }
-
-
-    if (!imageUrl) {
-
-        console.error(
-            "OG jar image is not available."
-        );
-
-        return;
-
-    }
-
-
-    ogImage.src =
-        imageUrl;
-
-
-    ogOverlay.classList.add(
-        "visible"
-    );
-
-}
-
-
-if (ogButton) {
+if (
+    ogButton
+) {
 
     ogButton.addEventListener(
         "click",
@@ -728,7 +662,10 @@ if (ogButton) {
 
 }
 
-if (jar2Button) {
+
+if (
+    jar2Button
+) {
 
     jar2Button.addEventListener(
         "click",
@@ -743,7 +680,9 @@ if (jar2Button) {
 }
 
 
-if (ogOverlay) {
+if (
+    ogOverlay
+) {
 
     ogOverlay.addEventListener(
         "click",
