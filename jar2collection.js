@@ -42,7 +42,7 @@ const collectionGrid =
 
 const categoryFilters =
     document.getElementById(
-        "jar2CategoryFilters"
+        "CategoryButtons"
     );
 
 const searchInput =
