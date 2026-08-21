@@ -25,55 +25,57 @@
 </head>
 
 
-<body>
+<body class="collection-page">
 
-<div class="app collection-page">
+<div class="app">
+
+    <!-- BACK TO JAR -->
+
+    <button
+        id="jar2BackButton"
+        type="button"
+    >
+
+        <span class="button-icon">
+
+            <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+            >
+
+                <path
+                    d="M19 12H5"
+                />
+
+                <path
+                    d="M12 19l-7-7 7-7"
+                />
+
+            </svg>
+
+        </span>
+
+        Back
+
+    </button>
 
     <!-- HEADER -->
 
     <header>
 
-        <h1>
-            My Collection
+       <h1>
+            <img
+                src="./icons/sticky-notes-collected.png"
+                class="title-emoji"
+                alt=""
+            >
+            My Collection - Jar 26'08'2026
         </h1>
-
-        <div class="stats">
-
-            <div>
-
-                <img
-                    src="./icons/post-it-remaining.png"
-                    class="stat-emoji"
-                    alt=""
-                >
-
-                <span id="jar2CollectedCount">
-                    0
-                </span>
-
-                notes collected
-
-            </div>
-
-        </div>
 
     </header>
 
 
-    <!-- BACK TO JAR -->
-
-    <section class="collection-top">
-
-        <button
-            id="jar2BackButton"
-            type="button"
-        >
-
-            ← Back to Special Jar
-
-        </button>
-
-    </section>
+    
 
 
     <!-- SEARCH -->

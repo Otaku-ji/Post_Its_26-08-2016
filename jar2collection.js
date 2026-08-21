@@ -50,11 +50,6 @@ const searchInput =
         "jar2SearchInput"
     );
 
-const collectedCount =
-    document.getElementById(
-        "jar2CollectedCount"
-    );
-
 const emptyMessage =
     document.getElementById(
         "jar2EmptyMessage"
@@ -155,18 +150,23 @@ async function loadCollection() {
            Load all Jar 2 notes.
         */
 
-        const {
-            data: notes,
-            error: notesError
-        } = await db
-            .from("jar2_notes")
-            .select("*")
-            .eq(
-                "active",
-                true
+       const {
+        data: notes,
+        error: notesError
+    } = await db
+        .from("jar2_notes")
+        .select(`
+            *,
+            jar2_categories (
+                name,
+                color
             )
-            .order("id");
-
+        `)
+        .eq(
+            "active",
+            true
+        )
+        .order("id");
 
         if (notesError) {
 
@@ -176,8 +176,23 @@ async function loadCollection() {
 
 
         allNotes =
-            notes || [];
+            (notes || []).map(
+                note => {
 
+                    return {
+                        ...note,
+
+                        category:
+                            note.jar2_categories?.name ||
+                            note.category,
+
+                        color:
+                            note.jar2_categories?.color ||
+                            "white"
+                    };
+
+                }
+        );
 
         /*
            Load only this user's
@@ -252,9 +267,6 @@ async function loadCollection() {
                         note !== null
                 );
 
-
-        collectedCount.textContent =
-            collectedNotes.length;
 
 
         renderCategoryFilters();

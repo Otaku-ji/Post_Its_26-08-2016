@@ -276,12 +276,18 @@ async function loadJar2() {
            Load all active notes.
         */
 
-        const {
+       const {
             data: notes,
             error: notesError
         } = await db
             .from("jar2_notes")
-            .select("*")
+            .select(`
+                *,
+                jar2_categories!jar2_notes_category_fkey (
+                    name,
+                    color
+                )
+            `)
             .eq(
                 "active",
                 true
@@ -296,14 +302,27 @@ async function loadJar2() {
         }
 
 
-        allJar2Notes =
-            notes || [];
+     console.log("JAR 2 NOTES FROM SUPABASE:", notes);
 
+allJar2Notes =
+    (notes || []).map(
+        note => {
 
-        /*
-           Load this user's
-           collected notes.
-        */
+            return {
+                ...note,
+
+                category:
+                    note.jar2_categories?.name ||
+                    note.category,
+
+                color:
+                    note.jar2_categories?.color ||
+                    "White"
+
+            };
+
+        }
+    );
 
         const {
             data: collections,
