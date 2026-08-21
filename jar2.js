@@ -23,6 +23,7 @@ const db =
 let allJar2Notes = [];
 let availableJar2Notes = [];
 let collectedJar2Notes = [];
+let jar2Categories = [];
 
 let currentUser = null;
 
@@ -304,25 +305,29 @@ async function loadJar2() {
 
      console.log("JAR 2 NOTES FROM SUPABASE:", notes);
 
-allJar2Notes =
-    (notes || []).map(
-        note => {
+     const {
+            data: categoryData,
+            error: categoryError
+        } = await db
+            .from("jar2_categories")
+            .select(
+                "id, name, color"
+            )
+            .order("id");
 
-            return {
-                ...note,
 
-                category:
-                    note.jar2_categories?.name ||
-                    note.category,
+        if (categoryError) {
 
-                color:
-                    note.jar2_categories?.color ||
-                    "White"
-
-            };
+            throw categoryError;
 
         }
-    );
+
+
+        jar2Categories =
+            categoryData || [];
+
+        allJar2Notes =
+            notes || [];
 
         const {
             data: collections,
@@ -443,6 +448,37 @@ function updateInterface() {
 
 }
 
+/* =========================
+   GET CATEGORY COLOR
+========================= */
+
+function getJar2CategoryColor(
+    categoryName
+) {
+
+    const category =
+        jar2Categories.find(
+            item =>
+                item.name ===
+                categoryName
+        );
+
+
+    if (!category) {
+
+        console.warn(
+            "No Jar 2 category color found for:",
+            categoryName
+        );
+
+        return "white";
+
+    }
+
+
+    return category.color;
+
+}
 
 /* =========================
    RENDER JAR
@@ -503,12 +539,17 @@ function renderJar() {
                 );
 
 
+            const categoryColor =
+                getJar2CategoryColor(
+                    source.category
+                );
+
+
             note.className =
                 "mini-note " +
                 convertColor(
-                    source.color
+                    categoryColor
                 );
-
 
             note.style.left =
                 `${random(2, 92)}%`;
@@ -758,11 +799,16 @@ function showNote(note) {
        Apply sticky-note colour.
     */
 
+    const categoryColor =
+        getJar2CategoryColor(
+            note.category
+        );
+
+
     bigNote.className =
         `big-note ${convertColor(
-            note.color
+            categoryColor
         )}`;
-
 
     modal.classList.add(
         "visible"
