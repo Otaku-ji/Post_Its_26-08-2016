@@ -243,7 +243,7 @@ let availableDailyDraws = 0;
 
 let currentUser = null;
 
-const JAR2_START_DATE = "2026-08-19";
+const JAR2_START_DATE = "2026-01-19";
 
 
 /* =========================
