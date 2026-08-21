@@ -30,6 +30,153 @@ let activeCategory = "All";
 
 let searchTerm = "";
 
+const IMAGE_CACHE_NAME = "postit-image-cache-v1";
+
+/* =========================
+   IMAGE CACHE
+========================= */
+
+async function cacheNoteImage(
+    imagePath
+) {
+
+    if (
+        !imagePath ||
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-images")
+                .createSignedUrl(
+                    imagePath,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "JAR 2 COLLECTION IMAGE SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "JAR 2 COLLECTION IMAGE DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        await cache.put(
+            imagePath,
+            response.clone()
+        );
+
+
+        return imagePath;
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 COLLECTION IMAGE CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedNoteImage(
+    imagePath
+) {
+
+    if (!imagePath) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                imagePath
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 COLLECTION CACHED IMAGE ERROR:",
+        error
+        );
+
+        return null;
+
+    }
+
+}
 
 /* =========================
    ELEMENTS
@@ -586,7 +733,7 @@ function renderCollection() {
    CREATE COLLECTION NOTE
 ========================= */
 
-function createCollectionNote(
+async function createCollectionNote(
     note
 ) {
 
@@ -640,8 +787,43 @@ function createCollectionNote(
     */
 
     if (
-        note.image_url
+    note.image_url
+) {
+
+    /*
+       First try local cache.
+    */
+
+    let imageUrl =
+        await getCachedNoteImage(
+            note.image_url
+        );
+
+
+    /*
+       If not cached, download it
+       while online.
+    */
+
+    if (
+        !imageUrl &&
+        navigator.onLine
     ) {
+
+        await cacheNoteImage(
+            note.image_url
+        );
+
+
+        imageUrl =
+            await getCachedNoteImage(
+                note.image_url
+            );
+
+    }
+
+
+    if (imageUrl) {
 
         const image =
             document.createElement(
@@ -650,7 +832,7 @@ function createCollectionNote(
 
 
         image.src =
-            note.image_url;
+            imageUrl;
 
 
         image.className =
@@ -664,6 +846,28 @@ function createCollectionNote(
         sticky.appendChild(
             image
         );
+
+    } else if (!navigator.onLine) {
+
+        const text =
+            document.createElement(
+                "div"
+            );
+
+
+        text.className =
+            "collection-note-text";
+
+
+        text.textContent =
+            "Image unavailable offline.";
+
+
+        sticky.appendChild(
+            text
+        );
+
+    }
 
     } else {
 
@@ -740,7 +944,7 @@ function createCollectionNote(
    SHOW LARGE NOTE
 ========================= */
 
-function showNote(
+async function showNote(
     note
 ) {
 
@@ -755,8 +959,42 @@ function showNote(
 
 
     if (
-        note.image_url
+    note.image_url
+) {
+
+    /*
+       First try local cache.
+    */
+
+    let imageUrl =
+        await getCachedNoteImage(
+            note.image_url
+        );
+
+
+    /*
+       Download if necessary.
+    */
+
+    if (
+        !imageUrl &&
+        navigator.onLine
     ) {
+
+        await cacheNoteImage(
+            note.image_url
+        );
+
+
+        imageUrl =
+            await getCachedNoteImage(
+                note.image_url
+            );
+
+    }
+
+
+    if (imageUrl) {
 
         const image =
             document.createElement(
@@ -765,7 +1003,7 @@ function showNote(
 
 
         image.src =
-            note.image_url;
+            imageUrl;
 
 
         image.className =
@@ -779,6 +1017,13 @@ function showNote(
         noteText.appendChild(
             image
         );
+
+    } else if (!navigator.onLine) {
+
+        noteText.textContent =
+            "Image unavailable offline.";
+
+    }
 
     } else {
 

@@ -16,6 +16,221 @@ const db =
     );
 
 
+
+/* =========================
+   IMAGE CACHE
+========================= */
+const IMAGE_CACHE_NAME ="postit-image-cache-v1";
+
+async function cacheNoteImage(
+    imagePath
+) {
+
+    if (
+        !imagePath ||
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-images")
+                .createSignedUrl(
+                    imagePath,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "JAR 2 IMAGE SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "JAR 2 IMAGE DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        await cache.put(
+            imagePath,
+            response.clone()
+        );
+
+
+        return imagePath;
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 IMAGE CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedNoteImage(
+    imagePath
+) {
+
+    if (!imagePath) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                imagePath
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 CACHED IMAGE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+/* =========================
+   CACHE ALL JAR 2 IMAGES
+========================= */
+
+async function cacheAllJar2Images() {
+
+    if (
+        !navigator.onLine ||
+        !allJar2Notes ||
+        allJar2Notes.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const imageNotes =
+        allJar2Notes.filter(
+            note =>
+                note.image_url
+        );
+
+
+    if (
+        imageNotes.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    console.log(
+        `JAR 2: Caching ${imageNotes.length} images...`
+    );
+
+
+    for (
+        const note of imageNotes
+    ) {
+
+        try {
+
+            await cacheNoteImage(
+                note.image_url
+            );
+
+        } catch (error) {
+
+            console.error(
+                "JAR 2 IMAGE CACHE ERROR:",
+                note.image_url,
+                error
+            );
+
+        }
+
+    }
+
+
+    console.log(
+        "JAR 2: All available images cached."
+    );
+
+}
+ 
 /* =========================
    GAME DATA
 ========================= */
@@ -30,6 +245,211 @@ let currentUser = null;
 
 const JAR2_START_DATE = "2026-08-19";
 
+
+/* =========================
+   LOCAL CACHE
+========================= */
+
+const JAR2_NOTES_CACHE_KEY =
+    "jar2_notes_cache";
+
+const JAR2_CATEGORIES_CACHE_KEY =
+    "jar2_categories_cache";
+
+
+function getJar2CollectionCacheKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+    return (
+        "jar2_collection_cache_" +
+        currentUser.id
+    );
+
+}
+
+
+function getJar2PendingCollectionsKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+    return (
+        "jar2_pending_collections_" +
+        currentUser.id
+    );
+
+}
+
+
+function getJar2PendingResetKey() {
+
+    if (!currentUser) {
+
+        return null;
+
+    }
+
+    return (
+        "jar2_pending_reset_" +
+        currentUser.id
+    );
+
+}
+
+
+/* =========================
+   CACHE HELPERS
+========================= */
+
+function saveCache(
+    key,
+    value
+) {
+
+    try {
+
+        localStorage.setItem(
+            key,
+            JSON.stringify(value)
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 CACHE SAVE ERROR:",
+            error
+        );
+
+    }
+
+}
+
+
+function loadCache(
+    key,
+    fallback
+) {
+
+    try {
+
+        const stored =
+            localStorage.getItem(
+                key
+            );
+
+        if (!stored) {
+
+            return fallback;
+
+        }
+
+        return JSON.parse(
+            stored
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 CACHE LOAD ERROR:",
+            error
+        );
+
+        return fallback;
+
+    }
+
+}
+
+/* =========================
+   JAR 2 PENDING ACTIONS
+========================= */
+
+function getPendingJar2Collections() {
+
+    const key =
+        getJar2PendingCollectionsKey();
+
+    if (!key) {
+
+        return [];
+
+    }
+
+    return loadCache(
+        key,
+        []
+    );
+
+}
+
+
+function savePendingJar2Collections(
+    collections
+) {
+
+    const key =
+        getJar2PendingCollectionsKey();
+
+    if (!key) {
+
+        return;
+
+    }
+
+    saveCache(
+        key,
+        collections
+    );
+
+}
+
+
+function isJar2ResetPending() {
+
+    const key =
+        getJar2PendingResetKey();
+
+    if (!key) {
+
+        return false;
+
+    }
+
+    return loadCache(
+        key,
+        false
+    ) === true;
+
+}
+
+
+function setJar2ResetPending(
+    value
+) {
+
+    const key =
+        getJar2PendingResetKey();
+
+    if (!key) {
+
+        return;
+
+    }
+
+    saveCache(
+        key,
+        value
+    );
+
+}
 
 /* =========================
    ELEMENTS
@@ -125,16 +545,14 @@ const ogImage =
 const OG_JAR_IMAGE =
     "OG_JAR.jpeg";
 
+async function cacheOGJarImage() {
 
-async function showOGJar() {
+    if (
+        !navigator.onLine ||
+        !db
+    ) {
 
-    if (!db) {
-
-        console.error(
-            "Supabase is not available."
-        );
-
-        return;
+        return false;
 
     }
 
@@ -160,17 +578,144 @@ async function showOGJar() {
         ) {
 
             console.error(
-                "OG IMAGE ERROR:",
+                "OG JAR CACHE SIGNED URL ERROR:",
                 error
             );
 
-            return;
+            return false;
 
         }
 
 
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "OG JAR CACHE DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return false;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        await cache.put(
+            OG_JAR_IMAGE,
+            response.clone()
+        );
+
+
+        console.log(
+            "OG JAR IMAGE CACHED."
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            "OG JAR IMAGE CACHE ERROR:",
+            error
+        );
+
+        return false;
+
+    }
+
+}
+
+async function getCachedOGJarImage() {
+
+    try {
+
+        const cache =
+            await caches.open(
+                IMAGE_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                OG_JAR_IMAGE
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "OG JAR CACHED IMAGE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+async function showOGJar() {
+
+    /*
+       First try the local cache.
+    */
+
+    let imageUrl =
+        await getCachedOGJarImage();
+
+
+    /*
+       If it isn't cached and we're online,
+       download it now.
+    */
+
+    if (
+        !imageUrl &&
+        navigator.onLine
+    ) {
+
+        await cacheOGJarImage();
+
+
+        imageUrl =
+            await getCachedOGJarImage();
+
+    }
+
+
+    /*
+       Show cached image.
+    */
+
+    if (imageUrl) {
+
         ogImage.src =
-            data.signedUrl;
+            imageUrl;
 
 
         ogImage.onload =
@@ -183,14 +728,18 @@ async function showOGJar() {
             };
 
 
-    } catch (error) {
-
-        console.error(
-            "OG IMAGE ERROR:",
-            error
-        );
+        return;
 
     }
+
+
+    /*
+       Nothing available.
+    */
+
+    console.error(
+        "OG JAR IMAGE IS NOT AVAILABLE."
+    );
 
 }
 
@@ -365,6 +914,269 @@ function getJar2AvailableDraws(
 }
 
 /* =========================
+   SAVE JAR 2 LOCAL GAME
+========================= */
+
+function saveJar2LocalGame() {
+
+    saveCache(
+        JAR2_NOTES_CACHE_KEY,
+        allJar2Notes
+    );
+
+
+    saveCache(
+        JAR2_CATEGORIES_CACHE_KEY,
+        jar2Categories
+    );
+
+
+    const collectionKey =
+        getJar2CollectionCacheKey();
+
+
+    if (collectionKey) {
+
+        saveCache(
+            collectionKey,
+            collectedJar2Notes.map(
+                note => ({
+                    note_id:
+                        note.id,
+
+                    drawn_at:
+                        note.drawn_at || null
+                })
+            )
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LOAD JAR 2 LOCAL GAME
+========================= */
+
+function loadJar2LocalGame() {
+
+    allJar2Notes =
+        loadCache(
+            JAR2_NOTES_CACHE_KEY,
+            []
+        );
+
+
+    jar2Categories =
+        loadCache(
+            JAR2_CATEGORIES_CACHE_KEY,
+            []
+        );
+
+
+    const collectionKey =
+        getJar2CollectionCacheKey();
+
+
+    const cachedCollection =
+        collectionKey
+            ? loadCache(
+                collectionKey,
+                []
+            )
+            : [];
+
+
+    const collectedIds =
+        cachedCollection.map(
+            item =>
+                item.note_id
+        );
+
+
+    availableJar2Notes =
+        allJar2Notes.filter(
+            note =>
+                !collectedIds.includes(
+                    note.id
+                )
+        );
+
+
+    collectedJar2Notes =
+        allJar2Notes
+            .filter(
+                note =>
+                    collectedIds.includes(
+                        note.id
+                    )
+            )
+            .map(
+                note => {
+
+                    const collection =
+                        cachedCollection.find(
+                            item =>
+                                item.note_id ===
+                                note.id
+                        );
+
+                    return {
+
+                        ...note,
+
+                        drawn_at:
+                            collection
+                                ? collection.drawn_at
+                                : null
+
+                    };
+
+                }
+            );
+
+
+    return (
+        allJar2Notes.length > 0 &&
+        jar2Categories.length > 0
+    );
+
+}
+/* =========================
+   SYNC PENDING JAR 2 CHANGES
+========================= */
+
+/* =========================
+   SYNC PENDING JAR 2 CHANGES
+========================= */
+
+async function syncPendingJar2Changes() {
+
+    /*
+       RESET
+    */
+
+    if (
+        isJar2ResetPending()
+    ) {
+
+        const {
+            error
+        } = await db
+            .from("jar2_collections")
+            .delete()
+            .eq(
+                "user_id",
+                currentUser.id
+            );
+
+
+        if (error) {
+
+            console.error(
+                "PENDING JAR 2 RESET ERROR:",
+                error
+            );
+
+            throw error;
+
+        }
+
+
+        /*
+           Reset successfully reached
+           Supabase.
+        */
+
+        setJar2ResetPending(
+            false
+        );
+
+
+        /*
+           Any pending draws that existed
+           before the reset are no longer
+           relevant.
+        */
+
+        savePendingJar2Collections(
+            []
+        );
+
+    }
+
+
+    /*
+       PENDING COLLECTIONS
+    */
+
+    const pending =
+        getPendingJar2Collections();
+
+
+    if (
+        pending.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    for (
+        const item of pending
+    ) {
+
+        const {
+            error
+        } = await db
+            .from("jar2_collections")
+            .insert({
+
+                note_id:
+                    item.note_id,
+
+                user_id:
+                    currentUser.id,
+
+                drawn_at:
+                    item.drawn_at
+
+            });
+
+
+        /*
+           Stop if an upload fails.
+           Remaining items stay cached.
+        */
+
+        if (error) {
+
+            console.error(
+                "PENDING JAR 2 COLLECTION ERROR:",
+                error
+            );
+
+            throw error;
+
+        }
+
+    }
+
+
+    /*
+       All pending draws successfully
+       reached Supabase.
+    */
+
+    savePendingJar2Collections(
+        []
+    );
+
+}
+
+/* =========================
    LOAD NOTES
 ========================= */
 
@@ -373,6 +1185,53 @@ async function loadJar2() {
     statusElement.textContent =
         "Loading jar...";
 
+    /*
+   First load locally cached data.
+*/
+
+    const hasLocalData =
+        loadJar2LocalGame();
+
+
+    if (hasLocalData) {
+
+        availableDailyDraws =
+            getJar2AvailableDraws(
+                collectedJar2Notes.length
+            );
+
+
+        updateInterface();
+
+
+        statusElement.textContent =
+            availableJar2Notes.length === 0
+                ? "You've collected every Post-it!"
+                : availableDailyDraws === 0
+                    ? "No Post-it available today. Come back tomorrow!"
+                    : "Tap the jar to draw a Post-it.";
+
+    }
+
+            /*
+        No internet:
+        continue using local data.
+        */
+
+        if (
+            !navigator.onLine
+        ) {
+
+            if (!hasLocalData) {
+
+                statusElement.textContent =
+                    "Connect to the internet once to load the Special Jar.";
+
+            }
+
+            return;
+
+}
 
     try {
 
@@ -431,6 +1290,17 @@ async function loadJar2() {
 
         allJar2Notes =
             notes || [];
+
+        await cacheAllJar2Images();
+
+        await cacheOGJarImage();
+
+                    /*
+        Upload any draws that were made
+        while offline.
+        */
+
+        await syncPendingJar2Changes();
 
         const {
             data: collections,
@@ -519,6 +1389,8 @@ async function loadJar2() {
                 collectedJar2Notes.length
             );
 
+        saveJar2LocalGame();
+
 
         statusElement.textContent =
             availableJar2Notes.length === 0
@@ -541,6 +1413,65 @@ async function loadJar2() {
 
 }
 
+/* =========================
+   ONLINE / OFFLINE
+========================= */
+
+window.addEventListener(
+    "online",
+    async () => {
+
+        console.log(
+            "Jar 2 internet connection restored."
+        );
+
+
+        statusElement.textContent =
+            "Connection restored. Syncing...";
+
+
+        try {
+
+            /*
+               Upload pending offline draws
+               and refresh the authoritative
+               Supabase collection.
+            */
+
+            await loadJar2();
+
+
+        } catch (error) {
+
+            console.error(
+                "JAR 2 SYNC ERROR:",
+                error
+            );
+
+
+            statusElement.textContent =
+                "Could not sync. Your local game is still safe.";
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        console.log(
+            "Jar 2 offline mode."
+        );
+
+
+        statusElement.textContent =
+            "Offline mode — your Special Jar is saved locally.";
+
+    }
+);
 
 /* =========================
    UPDATE INTERFACE
@@ -770,68 +1701,149 @@ async function drawNote() {
 
 
     /*
-       Save collection in Supabase.
-    */
+   UPDATE LOCAL STATE FIRST.
 
-    const {
-        data,
-        error
-    } = await db
-        .from("jar2_collections")
-        .insert({
-            note_id:
-                note.id,
+   The draw should work even when
+   there is no internet connection.
+*/
 
-            user_id:
-                currentUser.id,
-
-            drawn_at:
-                drawnAt
-        })
-        .select()
-        .single();
+availableJar2Notes.splice(
+    randomIndex,
+    1
+);
 
 
-    if (error) {
+availableDailyDraws--;
+
+
+collectedJar2Notes.push({
+
+    ...note,
+
+    drawn_at:
+        drawnAt
+
+});
+
+
+/*
+   Save the updated collection locally.
+*/
+
+saveJar2LocalGame();
+
+
+/*
+   If online, try to save immediately.
+   Otherwise put the draw into the
+   pending queue.
+*/
+
+if (
+    db &&
+    navigator.onLine
+) {
+
+    try {
+
+        const {
+            error
+        } = await db
+            .from("jar2_collections")
+            .insert({
+
+                note_id:
+                    note.id,
+
+                user_id:
+                    currentUser.id,
+
+                drawn_at:
+                    drawnAt
+
+            });
+
+
+        if (error) {
+
+            console.error(
+                "JAR 2 ONLINE COLLECTION ERROR:",
+                error
+            );
+
+
+            const pending =
+                getPendingJar2Collections();
+
+
+            pending.push({
+
+                note_id:
+                    note.id,
+
+                drawn_at:
+                    drawnAt
+
+            });
+
+
+            savePendingJar2Collections(
+                pending
+            );
+
+        }
+
+    } catch (error) {
 
         console.error(
-            "JAR 2 COLLECTION ERROR:",
+            "JAR 2 ONLINE COLLECTION ERROR:",
             error
         );
 
 
-        jarElement.classList.remove(
-            "lid-open"
+        const pending =
+            getPendingJar2Collections();
+
+
+        pending.push({
+
+            note_id:
+                note.id,
+
+            drawn_at:
+                drawnAt
+
+        });
+
+
+        savePendingJar2Collections(
+            pending
         );
-
-
-        statusElement.textContent =
-            "Could not save the Post-it. Please try again.";
-
-        return;
 
     }
 
+} else {
 
-    /*
-       Update local state.
-    */
-
-    availableJar2Notes.splice(
-        randomIndex,
-        1
-    );
+    const pending =
+        getPendingJar2Collections();
 
 
-    availableDailyDraws--;
+    pending.push({
 
-
-    collectedJar2Notes.push({
-        ...note,
+        note_id:
+            note.id,
 
         drawn_at:
-            data.drawn_at
+            drawnAt
+
     });
+
+
+    savePendingJar2Collections(
+        pending
+    );
+
+}
 
 
     updateInterface();
@@ -844,7 +1856,7 @@ async function drawNote() {
         ...note,
 
         drawn_at:
-            data.drawn_at
+            drawnAt
     });
 
 }
@@ -854,7 +1866,7 @@ async function drawNote() {
    SHOW NOTE
 ========================= */
 
-function showNote(note) {
+async function showNote(note) {
 
     noteCategory.textContent =
         note.category || "";
@@ -868,9 +1880,44 @@ function showNote(note) {
        IMAGE NOTE
     */
 
+if (
+    note.image_url
+) {
+
+    /*
+       First try the local cache.
+    */
+
+    let imageUrl =
+        await getCachedNoteImage(
+            note.image_url
+        );
+
+
+    /*
+       If the image is not cached
+       and we are online, download it.
+    */
+
     if (
-        note.image_url
+        !imageUrl &&
+        navigator.onLine
     ) {
+
+        await cacheNoteImage(
+            note.image_url
+        );
+
+
+        imageUrl =
+            await getCachedNoteImage(
+                note.image_url
+            );
+
+    }
+
+
+    if (imageUrl) {
 
         const image =
             document.createElement(
@@ -879,7 +1926,7 @@ function showNote(note) {
 
 
         image.src =
-            note.image_url;
+            imageUrl;
 
 
         image.className =
@@ -894,7 +1941,14 @@ function showNote(note) {
             image
         );
 
-    } else {
+    } else if (!navigator.onLine) {
+
+        noteText.textContent =
+            "Image unavailable offline.";
+
+    }
+
+} else {
 
         noteText.textContent =
             note.text || "";
@@ -1104,54 +2158,114 @@ if (resetButton) {
                 "Resetting...";
 
 
-            try {
-
-                const {
-                    error
-                } = await db
-                    .from("jar2_collections")
-                    .delete()
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    );
+            statusElement.textContent =
+                "Resetting jar...";
 
 
-                if (error) {
+            /*
+               RESET LOCAL STATE FIRST.
 
-                    throw error;
+               This makes reset work even
+               when the device is offline.
+            */
 
-                }
-
-
-                availableJar2Notes =
-                    [...allJar2Notes];
-
-                collectedJar2Notes =
-                    [];
-
-                availableDailyDraws =
-                    getJar2AvailableDraws(
-                        0
-                    );
-
-                updateInterface();
+            availableJar2Notes =
+                [...allJar2Notes];
 
 
-                statusElement.textContent =
-                    "Jar has been reset! Tap the jar to draw a Post-it.";
+            collectedJar2Notes =
+                [];
 
 
-            } catch (error) {
-
-                console.error(
-                    "JAR 2 RESET ERROR:",
-                    error
+            availableDailyDraws =
+                getJar2AvailableDraws(
+                    0
                 );
 
 
-                statusElement.textContent =
-                    "Could not reset the jar.";
+            /*
+               Save the reset state locally.
+            */
+
+            saveJar2LocalGame();
+
+
+            /*
+               The reset supersedes all
+               previously pending draws.
+            */
+
+            savePendingJar2Collections(
+                []
+            );
+
+
+            /*
+               Mark reset as pending.
+
+               If the device is offline,
+               this will be synchronized
+               later.
+            */
+
+            setJar2ResetPending(
+                true
+            );
+
+
+            updateInterface();
+
+
+            /*
+               Try to reset Supabase
+               immediately if online.
+            */
+
+            if (
+                db &&
+                navigator.onLine
+            ) {
+
+                try {
+
+                    const {
+                        error
+                    } = await db
+                        .from("jar2_collections")
+                        .delete()
+                        .eq(
+                            "user_id",
+                            currentUser.id
+                        );
+
+
+                    if (error) {
+
+                        console.error(
+                            "JAR 2 RESET ONLINE ERROR:",
+                            error
+                        );
+
+                    } else {
+
+                        /*
+                           Supabase reset succeeded.
+                        */
+
+                        setJar2ResetPending(
+                            false
+                        );
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "JAR 2 RESET ONLINE ERROR:",
+                        error
+                    );
+
+                }
 
             }
 
@@ -1163,10 +2277,94 @@ if (resetButton) {
             resetButton.textContent =
                 "Reset Jar";
 
+
+            statusElement.textContent =
+                "Jar has been reset! Tap the jar to draw a Post-it.";
+
         }
     );
 
 }
+
+
+/* =========================
+   ONLINE / OFFLINE
+========================= */
+
+window.addEventListener(
+    "online",
+    async () => {
+
+        console.log(
+            "Jar 2: Internet connection restored."
+        );
+
+
+        statusElement.textContent =
+            "Connection restored. Syncing...";
+
+
+        try {
+
+            await loadJar2();
+
+
+            if (
+                availableJar2Notes.length === 0
+            ) {
+
+                statusElement.textContent =
+                    "You've collected every Post-it!";
+
+            } else if (
+                availableDailyDraws === 0
+            ) {
+
+                statusElement.textContent =
+                    "No Post-it available today. Come back tomorrow!";
+
+            } else {
+
+                statusElement.textContent =
+                    availableDailyDraws === 1
+                        ? "You have 1 Post-it to draw."
+                        : `You have ${availableDailyDraws} Post-its to draw.`;
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "JAR 2 ONLINE SYNC ERROR:",
+                error
+            );
+
+
+            statusElement.textContent =
+                "Could not sync. Your local game is still available.";
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "offline",
+    () => {
+
+        console.log(
+            "Jar 2: Offline mode."
+        );
+
+
+        statusElement.textContent =
+            "Offline mode — your Jar 2 collection is saved locally.";
+
+    }
+);
+
 
 
 /* =========================
@@ -1269,6 +2467,12 @@ function isPinSessionActive() {
 
 
 function updatePinActivity() {
+
+    if (!isPinSessionActive()) {
+
+        return;
+
+    }
 
     localStorage.setItem(
         PIN_SESSION_KEY,
