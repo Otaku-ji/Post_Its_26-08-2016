@@ -305,13 +305,17 @@ function renderCategoryFilters() {
 
     /*
        Get unique categories
-       from collected notes.
+       from ALL Jar 2 notes.
+
+       This means the category buttonsQ
+       remain visible even when the
+       collection is empty.
     */
 
     const categories =
         [
             ...new Set(
-                collectedNotes
+                allNotes
                     .map(
                         note =>
                             note.category
@@ -342,7 +346,7 @@ function renderCategoryFilters() {
         category => {
 
             const note =
-                collectedNotes.find(
+                allNotes.find(
                     item =>
                         item.category ===
                         category
@@ -932,6 +936,74 @@ function convertColor(
 
 }
 
+/* =========================
+   PIN SESSION
+========================= */
+
+const PIN_SESSION_KEY =
+    "postit_pin_last_activity";
+
+const PIN_TIMEOUT =
+    15 * 60 * 1000; // 15 minutes
+
+
+function isPinSessionActive() {
+
+    const lastActivity =
+        Number(
+            localStorage.getItem(
+                PIN_SESSION_KEY
+            )
+        );
+
+
+    if (!lastActivity) {
+
+        return false;
+
+    }
+
+
+    return (
+        Date.now() - lastActivity <
+        PIN_TIMEOUT
+    );
+
+}
+
+
+function updatePinActivity() {
+
+    localStorage.setItem(
+        PIN_SESSION_KEY,
+        Date.now().toString()
+    );
+
+}
+
+
+/* =========================
+   PIN ACTIVITY
+========================= */
+
+document.addEventListener(
+    "click",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "touchstart",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "keydown",
+    updatePinActivity
+);
+
+/* =========================
+   START
+========================= */
 
 /* =========================
    START
@@ -950,10 +1022,37 @@ async function startCollection() {
     }
 
 
+    /*
+       Require an active PIN session.
+    */
+
+    if (!isPinSessionActive()) {
+
+        sessionStorage.setItem(
+            "pin_return_url",
+            "jar2collection.html"
+        );
+
+
+        window.location.href =
+            "pin.html";
+
+        return;
+
+    }
+
+
+    /*
+       PIN session is active.
+       Refresh the activity timer.
+    */
+
+    updatePinActivity();
+
+
     await loadCollection();
 
 }
 
 
 startCollection();
-

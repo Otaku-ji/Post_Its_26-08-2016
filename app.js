@@ -1133,7 +1133,7 @@ async function syncFromSupabase() {
     ) {
 
         statusElement.innerHTML =
-        `<You've collected every Post-it! img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
+        `You've collected every Post-it! <img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
 
     } else {
 
@@ -1629,7 +1629,7 @@ bigNote.addEventListener(
         ) {
 
         statusElement.innerHTML =
-        `<You've collected every Post-it! img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
+        `You've collected every Post-it! <img src="./icons/hearts-draw-post-it.png" class="status-emoji" alt="">`;
 
         } else {
 

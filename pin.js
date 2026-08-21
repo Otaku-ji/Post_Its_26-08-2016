@@ -240,8 +240,26 @@ async function checkPin() {
             );
 
 
-            window.location.href =
-                "index.html";
+           const pinReturnUrl =
+                sessionStorage.getItem(
+                    "pin_return_url"
+                );
+
+            if (pinReturnUrl) {
+
+                sessionStorage.removeItem(
+                    "pin_return_url"
+                );
+
+                window.location.href =
+                    pinReturnUrl;
+
+            } else {
+
+                window.location.href =
+                    "index.html";
+
+            }
 
             return;
 

@@ -1232,6 +1232,74 @@ function wait(
 
 }
 
+/* =========================
+   PIN SESSION
+========================= */
+
+const PIN_SESSION_KEY =
+    "postit_pin_last_activity";
+
+const PIN_TIMEOUT =
+    15 * 60 * 1000; // 15 minutes
+
+
+function isPinSessionActive() {
+
+    const lastActivity =
+        Number(
+            localStorage.getItem(
+                PIN_SESSION_KEY
+            )
+        );
+
+
+    if (!lastActivity) {
+
+        return false;
+
+    }
+
+
+    return (
+        Date.now() - lastActivity <
+        PIN_TIMEOUT
+    );
+
+}
+
+
+function updatePinActivity() {
+
+    localStorage.setItem(
+        PIN_SESSION_KEY,
+        Date.now().toString()
+    );
+
+}
+
+
+/* =========================
+   PIN ACTIVITY
+========================= */
+
+document.addEventListener(
+    "click",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "touchstart",
+    updatePinActivity
+);
+
+document.addEventListener(
+    "keydown",
+    updatePinActivity
+);
+
+/* =========================
+   START
+========================= */
 
 /* =========================
    START
@@ -1248,6 +1316,35 @@ async function startJar2() {
         return;
 
     }
+
+
+    /*
+       Require an active PIN session.
+    */
+
+    if (!isPinSessionActive()) {
+
+        sessionStorage.setItem(
+            "pin_return_url",
+            "jar2.html"
+        );
+
+
+        window.location.href =
+            "pin.html";
+
+        return;
+
+    }
+
+
+    /*
+       PIN session is active.
+       Keep the 15-minute timer
+       alive from the latest activity.
+    */
+
+    updatePinActivity();
 
 
     await loadJar2();

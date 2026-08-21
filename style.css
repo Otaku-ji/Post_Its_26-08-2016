@@ -1412,8 +1412,8 @@ h1 {
         scale(.98);
 }
 
-
-#noteCategory {
+#noteCategory,
+#jar2NoteCategory {
 
     font-size:
         28px;
@@ -1444,7 +1444,8 @@ h1 {
 }
 
 
-#noteText {
+#noteText,
+#jar2NoteText {
 
     font-size:
         28px;
@@ -3014,78 +3015,89 @@ h1 {
         scale(.95);
 }
 
+/* =========================
+   JAR 2 BIG NOTES
+   DRAW + COLLECTION
+   MATCH JAR 1
+========================= */
 
-/* Jar 2 mobile — match Jar 1 */
-@media (max-width: 600px) {
+#jar2BigNote,
+#jar2CollectionBigNote {
+    width: min(430px, 90vw);
+    min-height: 320px;
+    padding: 45px 35px;
+    position: relative;
+    box-shadow:
+        8px 15px 30px
+        rgba(0, 0, 0, .35);
+    transform: rotate(-2deg);
+    animation:
+        noteAppear
+        .35s
+        ease;
+    cursor: pointer;
+    transition:
+        transform
+        .15s
+        ease;
+}
 
-    .jar2-page .app {
-        padding:
-            20px
-            12px
-            40px;
-    }
+#jar2BigNote:hover,
+#jar2CollectionBigNote:hover {
+    transform:
+        rotate(-2deg)
+        scale(1.02);
+}
 
-
-    .jar2-page #jarSection {
-        min-height:
-            0;
-
-        padding:
-            10px
-            0;
-    }
-
-
-    .jar2-page .jar {
-        width:
-            min(
-                300px,
-                75vw
-            );
-
-        height:
-            min(
-                330px,
-                52vh
-            );
-    }
-
-
-    .jar2-page .jar-notes {
-        top:
-            90px;
-
-        bottom:
-            25px;
-    }
-
-
-    .jar2-page .mini-note {
-        width:
-            43px;
-
-        height:
-            38px;
-    }
-
-
-    .jar2-page #jar1Button,
-    .jar2-page #jar2SwitchButton {
-        bottom:
-            70px;
-    }
+#jar2BigNote:active,
+#jar2CollectionBigNote:active {
+    transform:
+        rotate(-2deg)
+        scale(.98);
 }
 
 
-/* Installed PWA */
-@media (display-mode: standalone) {
+/* =========================
+   CATEGORY
+========================= */
 
-    .jar2-page #jar1Button,
-    .jar2-page #jar2SwitchButton {
-        bottom:
-            calc(
-                90px +
-                env(safe-area-inset-bottom)
-            );
-    }
+#jar2NoteCategory,
+#jar2CollectionNoteCategory {
+    font-size: 28px;
+    font-weight: 800;
+    text-transform: none;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    letter-spacing: 0;
+    color: #29231c;
+    opacity: 1;
+    margin-bottom: 30px;
+}
+
+
+/* =========================
+   TEXT
+========================= */
+
+#jar2NoteText,
+#jar2CollectionNoteText {
+    font-size: 28px;
+    line-height: 1.35;
+    font-weight: 400;
+    margin-bottom: 35px;
+}
+
+
+/* =========================
+   DATE
+========================= */
+
+#jar2NoteDate,
+#jar2CollectionNoteDate {
+    position: absolute;
+    right: 18px;
+    bottom: 14px;
+    font-size: 12px;
+    color: #000;
+    opacity: 0.65;
 }
