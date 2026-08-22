@@ -1407,6 +1407,28 @@ bigNote.addEventListener(
     "click",
     () => {
 
+        /*
+           Stop any music when the note
+           is closed.
+        */
+
+        const audio =
+            bigNote.querySelector(
+                ".note-music"
+            );
+
+
+        if (audio) {
+
+            audio.pause();
+
+            audio.currentTime = 0;
+
+            audio.remove();
+
+        }
+
+
         modal.classList.remove(
             "visible"
         );
