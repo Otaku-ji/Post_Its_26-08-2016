@@ -1570,6 +1570,11 @@ async function loadJar2() {
 
      console.log("JAR 2 NOTES FROM SUPABASE:", notes);
 
+     console.log(
+    "JAR 2 NOTES COUNT FROM SUPABASE:",
+    notes ? notes.length : 0
+);
+
      const {
             data: categoryData,
             error: categoryError
@@ -1593,6 +1598,11 @@ async function loadJar2() {
 
         allJar2Notes =
             notes || [];
+
+        console.log(
+            "JAR 2 ALL NOTES AFTER ASSIGNMENT:",
+            allJar2Notes.length
+        );
 
         await cacheAllJar2Images();
 
@@ -1653,6 +1663,21 @@ async function loadJar2() {
                         note.id
                     )
             );
+
+        console.log(
+            "JAR 2 COLLECTED COUNT:",
+            collectedJar2Notes.length
+        );
+
+        console.log(
+            "JAR 2 AVAILABLE COUNT:",
+            availableJar2Notes.length
+        );
+
+        console.log(
+            "JAR 2 TOTAL COUNT:",
+            allJar2Notes.length
+        );
 
 
         collectedJar2Notes =
