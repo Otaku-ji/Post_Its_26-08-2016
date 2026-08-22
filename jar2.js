@@ -18,9 +18,10 @@ const db =
 
 
 /* =========================
-   IMAGE CACHE
+   IMAGE and MUSIC CACHE
 ========================= */
 const IMAGE_CACHE_NAME ="postit-image-cache-v1";
+const MUSIC_CACHE_NAME ="postit-music-cache-v1";
 
 async function cacheNoteImage(
     imagePath
@@ -165,6 +166,158 @@ async function getCachedNoteImage(
 }
 
 /* =========================
+   MUSIC CACHE
+========================= */
+
+async function cacheNoteMusic(
+    musicPath
+) {
+
+    if (
+        !musicPath ||
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-music")
+                .createSignedUrl(
+                    musicPath,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "JAR 2 MUSIC SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "JAR 2 MUSIC DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                MUSIC_CACHE_NAME
+            );
+
+
+        await cache.put(
+            musicPath,
+            response.clone()
+        );
+
+
+        console.log(
+            "JAR 2 MUSIC CACHED:",
+            musicPath
+        );
+
+
+        return musicPath;
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 MUSIC CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedNoteMusic(
+    musicPath
+) {
+
+    if (!musicPath) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const cache =
+            await caches.open(
+                MUSIC_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                musicPath
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 CACHED MUSIC ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+/* =========================
    CACHE ALL JAR 2 IMAGES
 ========================= */
 
@@ -227,6 +380,89 @@ async function cacheAllJar2Images() {
 
     console.log(
         "JAR 2: All available images cached."
+    );
+
+}
+
+async function cacheAllJar2Music() {
+
+    if (
+        !navigator.onLine ||
+        !allJar2Notes ||
+        allJar2Notes.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    const musicNotes =
+        allJar2Notes.filter(
+            note =>
+                note.music_url
+        );
+
+
+    if (
+        musicNotes.length === 0
+    ) {
+
+        return;
+
+    }
+
+
+    console.log(
+        `JAR 2: Caching ${musicNotes.length} music file(s)...`
+    );
+
+
+    for (
+        const note of musicNotes
+    ) {
+
+        try {
+
+            /*
+               First check whether the
+               music is already cached.
+            */
+
+            const cachedMusic =
+                await getCachedNoteMusic(
+                    note.music_url
+                );
+
+
+            /*
+               Only download it when it
+               isn't already cached.
+            */
+
+            if (!cachedMusic) {
+
+                await cacheNoteMusic(
+                    note.music_url
+                );
+
+            }
+
+        } catch (error) {
+
+            console.error(
+                "JAR 2 MUSIC CACHE ERROR:",
+                note.music_url,
+                error
+            );
+
+        }
+
+    }
+
+
+    console.log(
+        "JAR 2: All available music cached."
     );
 
 }
@@ -1360,6 +1596,8 @@ async function loadJar2() {
 
         await cacheAllJar2Images();
 
+        await cacheAllJar2Music();
+
         await cacheOGJarImage();
 
                     /*
@@ -2057,6 +2295,101 @@ async function showNote(note) {
         }
 
     }
+
+    /*
+   MUSIC
+*/
+
+if (
+    note.music_url
+) {
+
+    /*
+       First try the local cache.
+    */
+
+    let musicUrl =
+        await getCachedNoteMusic(
+            note.music_url
+        );
+
+
+    /*
+       If the music is not cached
+       and we are online, download it.
+    */
+
+    if (
+        !musicUrl &&
+        navigator.onLine
+    ) {
+
+        await cacheNoteMusic(
+            note.music_url
+        );
+
+
+        musicUrl =
+            await getCachedNoteMusic(
+                note.music_url
+            );
+
+    }
+
+
+    /*
+       Create audio player.
+    */
+
+    if (musicUrl) {
+
+        const audio =
+            document.createElement(
+                "audio"
+            );
+
+
+        audio.src =
+            musicUrl;
+
+
+        audio.controls =
+            true;
+
+
+        audio.preload =
+            "metadata";
+
+
+        audio.className =
+            "note-music";
+
+
+        noteText.appendChild(
+            audio
+        );
+
+    } else if (
+        !navigator.onLine
+    ) {
+
+        const musicMessage =
+            document.createElement(
+                "div"
+            );
+
+
+        musicMessage.textContent =
+            "Music unavailable offline.";
+
+
+        noteText.appendChild(
+            musicMessage
+        );
+
+    }
+
+}
 
 
     /*
