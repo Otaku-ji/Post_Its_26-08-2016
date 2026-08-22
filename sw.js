@@ -1,4 +1,4 @@
-const CACHE_NAME = "postit-game-v6";
+const CACHE_NAME = "postit-game-v7";
 
 
 const APP_FILES = [
@@ -8,6 +8,10 @@ const APP_FILES = [
     "./style.css",
     "./app.js",
     "./collection.js",
+    "./jar2.html",
+    "./jar2.js",
+    "./jar2collection.html",
+    "./jar2collection.js",
     "./pin.html",
     "./pin.js",
     "./setup-pin.html",
@@ -77,14 +81,37 @@ self.addEventListener(
                             cacheNames
                                 .filter(
                                     cacheName =>
+
+                                        /*
+                                           Only delete old
+                                           application caches.
+
+                                           IMPORTANT:
+                                           Keep image and music
+                                           caches because they are
+                                           used for offline mode.
+                                        */
+
+                                        cacheName.startsWith(
+                                            "postit-game-"
+                                        ) &&
                                         cacheName !==
-                                        CACHE_NAME
+                                            CACHE_NAME
                                 )
                                 .map(
-                                    cacheName =>
-                                        caches.delete(
+                                    cacheName => {
+
+                                        console.log(
+                                            "Deleting old cache:",
                                             cacheName
-                                        )
+                                        );
+
+
+                                        return caches.delete(
+                                            cacheName
+                                        );
+
+                                    }
                                 )
 
                         );
