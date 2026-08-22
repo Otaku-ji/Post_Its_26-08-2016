@@ -33,6 +33,8 @@ let searchTerm = "";
 const IMAGE_CACHE_NAME =
     "postit-image-cache-v1";
 
+const MUSIC_CACHE_NAME =
+    "postit-music-cache-v1";
 
 /* =========================
    IMAGE CACHE
@@ -180,6 +182,157 @@ async function getCachedNoteImage(
 
 }
 
+/* =========================
+   MUSIC CACHE
+========================= */
+
+async function cacheNoteMusic(
+    musicPath
+) {
+
+    if (
+        !musicPath ||
+        !db ||
+        !navigator.onLine
+    ) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await db.storage
+                .from("postit-music")
+                .createSignedUrl(
+                    musicPath,
+                    60 * 60
+                );
+
+
+        if (
+            error ||
+            !data ||
+            !data.signedUrl
+        ) {
+
+            console.error(
+                "JAR 2 COLLECTION MUSIC SIGNED URL ERROR:",
+                error
+            );
+
+            return null;
+
+        }
+
+
+        const response =
+            await fetch(
+                data.signedUrl
+            );
+
+
+        if (
+            !response.ok
+        ) {
+
+            console.error(
+                "JAR 2 COLLECTION MUSIC DOWNLOAD ERROR:",
+                response.status
+            );
+
+            return null;
+
+        }
+
+
+        const cache =
+            await caches.open(
+                MUSIC_CACHE_NAME
+            );
+
+
+        await cache.put(
+            musicPath,
+            response.clone()
+        );
+
+
+        console.log(
+            "JAR 2 COLLECTION MUSIC CACHED:",
+            musicPath
+        );
+
+
+        return musicPath;
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 COLLECTION MUSIC CACHE ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
+
+
+async function getCachedNoteMusic(
+    musicPath
+) {
+
+    if (!musicPath) {
+
+        return null;
+
+    }
+
+
+    try {
+
+        const cache =
+            await caches.open(
+                MUSIC_CACHE_NAME
+            );
+
+
+        const response =
+            await cache.match(
+                musicPath
+            );
+
+
+        if (!response) {
+
+            return null;
+
+        }
+
+
+        return URL.createObjectURL(
+            await response.blob()
+        );
+
+    } catch (error) {
+
+        console.error(
+            "JAR 2 COLLECTION CACHED MUSIC ERROR:",
+            error
+        );
+
+        return null;
+
+    }
+
+}
 
 /* =========================
    ELEMENTS
@@ -1104,6 +1257,120 @@ async function showNote(
 
     }
 
+    /*
+       MUSIC
+
+       Music is shown underneath
+       the image when available.
+
+       The music is loaded from the
+       shared offline music cache.
+    */
+
+    if (
+        note.music_url
+    ) {
+
+        /*
+           First try local cache.
+        */
+
+        let musicUrl =
+            await getCachedNoteMusic(
+                note.music_url
+            );
+
+
+        /*
+           Download if necessary
+           while online.
+        */
+
+        if (
+            !musicUrl &&
+            navigator.onLine
+        ) {
+
+            await cacheNoteMusic(
+                note.music_url
+            );
+
+
+            musicUrl =
+                await getCachedNoteMusic(
+                    note.music_url
+                );
+
+        }
+
+
+        /*
+           Create audio player.
+        */
+
+        if (musicUrl) {
+
+            const audio =
+                document.createElement(
+                    "audio"
+                );
+
+
+            audio.src =
+                musicUrl;
+
+
+            audio.controls =
+                true;
+
+            audio.autoplay =
+                 true;
+
+
+            audio.preload =
+                "metadata";
+
+
+            audio.className =
+                "note-music";
+
+
+            noteText.appendChild(
+                audio
+            );
+
+            audio.play().catch(
+                error => {
+
+                    console.log(
+                        "JAR 2 MUSIC AUTOPLAY BLOCKED:",
+                        error
+                    );
+
+                }
+            );
+
+        } else if (
+            !navigator.onLine
+        ) {
+
+            const musicMessage =
+                document.createElement(
+                    "div"
+                );
+
+
+            musicMessage.textContent =
+                "Music unavailable offline.";
+
+
+            noteText.appendChild(
+                musicMessage
+            );
+
+        }
+
+    }
 
     /*
        Draw date

@@ -2373,14 +2373,15 @@ if (
                 "audio"
             );
 
-
         audio.src =
             musicUrl;
 
 
         audio.controls =
             true;
-
+        
+        audio.autoplay =
+            true;
 
         audio.preload =
             "metadata";
@@ -2393,6 +2394,17 @@ if (
         noteText.appendChild(
             audio
         );
+
+        audio.play().catch(
+            error => {
+
+        console.log(
+            "JAR 2 MUSIC AUTOPLAY BLOCKED:",
+            error
+        );
+
+    }
+);
 
     } else if (
         !navigator.onLine
